@@ -9,6 +9,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 import Index from './screens/Index';
 import AddRecord from './screens/AddRecord';
 import RecordList from './screens/RecordList';
+import RecordItemList from './screens/RecordItemList';
 
 export type Props = {};
 
@@ -23,6 +24,7 @@ const App: React.FC<Props> = ({}) => {
             <Stack.Screen name="Index" component={Index} />
             <Stack.Screen name="AddRecord" component={AddRecord} />
             <Stack.Screen name="RecordList" component={RecordList} />
+            <Stack.Screen name="RecordItemList" component={RecordItemList} />
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaProvider>

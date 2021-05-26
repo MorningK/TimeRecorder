@@ -1,6 +1,7 @@
 import Realm from 'realm';
 import {ObjectId} from 'bson';
 import RNFS from 'react-native-fs';
+import {Platform} from 'react-native';
 
 export type RecordType = {
   _id: ObjectId;
@@ -73,6 +74,9 @@ export const Schema = [Record, RecordItems];
 
 export const SchemaVersion = 1;
 
-export const databaseStoragePath = RNFS.ExternalDirectoryPath + '/record.realm';
-console.log(RNFS);
-console.log(databaseStoragePath);
+export const databaseStoragePath =
+  Platform.OS === 'android' && Platform.Version >= 26
+    ? Realm.defaultPath
+    : RNFS.ExternalDirectoryPath + '/record.realm';
+console.log('Realm.defaultPath is', Realm.defaultPath);
+console.log('databaseStoragePath is', databaseStoragePath);

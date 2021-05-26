@@ -2,8 +2,9 @@ import React from 'react';
 import {StatusBar, StyleSheet, Text, View} from 'react-native';
 import {Button} from 'react-native-elements';
 import {useNavigation} from '@react-navigation/core';
+import {EmptyObject} from '../common/constant';
 
-export type Props = Record<string, never>;
+export type Props = EmptyObject;
 
 const Index: React.FC<Props> = ({}) => {
   const navigation = useNavigation();

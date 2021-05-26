@@ -2,7 +2,6 @@ import {
   logger,
   consoleTransport,
   fileAsyncTransport,
-  configLoggerType,
 } from 'react-native-logs';
 import RNFS from 'react-native-fs';
 import moment from 'moment';
@@ -14,7 +13,7 @@ const config = {
   transport: __DEV__ ? consoleTransport : fileAsyncTransport,
   transportOptions: {
     FS: RNFS,
-    fileName: `app_${date}.logger`,
+    fileName: `app.log.${date}`,
     filePath: RNFS.ExternalDirectoryPath,
     colors: 'ansi',
   },

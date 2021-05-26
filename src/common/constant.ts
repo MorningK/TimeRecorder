@@ -11,3 +11,5 @@ export const RecordeTypes: RecordType[] = [
   {name: '数值', value: 3, description: '用户输入的任意合法数值'},
   {name: '区间', value: 4, description: '数值从一点开始到另一点结束'},
 ];
+
+export type EmptyObject = Record<string, never>;

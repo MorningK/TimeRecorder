@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
-import {Button, CheckBox, Input} from 'react-native-elements';
+import {Button, CheckBox, Icon, Input} from 'react-native-elements';
 import {EmptyObject, RecordeTypes} from '../common/constant';
 import {useNavigation} from '@react-navigation/core';
 import logger from '../log';
@@ -59,32 +59,34 @@ const AddRecord: React.FC<Props> = ({}) => {
   };
   return (
     <View style={styles.container}>
-      <Input
-        label="记录名称"
-        labelStyle={styles.inputLabel}
-        placeholder="请输入记录名称"
-        errorMessage={nameError ? '请输入记录名称' : undefined}
-        errorStyle={styles.errorMsg}
-        onChangeText={onNameChange}
-      />
-      <View style={styles.recordTypes}>
-        <Text style={[styles.inputLabel, styles.recordLabel]}>记录类型</Text>
-        {RecordeTypes.map(recordType => (
-          <View key={recordType.value}>
-            <CheckBox
-              checkedIcon="circle"
-              uncheckedIcon="circle"
-              title={recordType.name}
-              checked={type === recordType.value}
-              onPress={() => onTypeChange(recordType.value)}
-            />
-          </View>
-        ))}
-        {typeError && (
-          <Text style={[styles.errorMsg, styles.typeErrorMsg]}>
-            请选择记录类型
-          </Text>
-        )}
+      <View style={styles.inputContainer}>
+        <Input
+          label="记录名称"
+          labelStyle={styles.inputLabel}
+          placeholder="请输入记录名称"
+          errorMessage={nameError ? '请输入记录名称' : undefined}
+          errorStyle={styles.errorMsg}
+          onChangeText={onNameChange}
+        />
+        <View style={styles.recordTypes}>
+          <Text style={[styles.inputLabel, styles.recordLabel]}>记录类型</Text>
+          {RecordeTypes.map(recordType => (
+            <View key={recordType.value}>
+              <CheckBox
+                checkedIcon={<Icon name="radio-button-checked" />}
+                uncheckedIcon={<Icon name="radio-button-unchecked" />}
+                title={recordType.name}
+                checked={type === recordType.value}
+                onPress={() => onTypeChange(recordType.value)}
+              />
+            </View>
+          ))}
+          {typeError && (
+            <Text style={[styles.errorMsg, styles.typeErrorMsg]}>
+              请选择记录类型
+            </Text>
+          )}
+        </View>
       </View>
       <View style={styles.operations}>
         <Button title="保存" loading={loading} onPress={onSave} />
@@ -97,7 +99,11 @@ const AddRecord: React.FC<Props> = ({}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'space-around',
     alignItems: 'center',
+  },
+  inputContainer: {
+    width: '100%',
   },
   recordTypes: {
     width: '100%',

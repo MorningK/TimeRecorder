@@ -4,6 +4,7 @@ import {RecordType} from '../database/realm';
 import {Icon, ListItem} from 'react-native-elements';
 import CommonStyles from '../common/CommonStyles';
 import {useNavigation} from '@react-navigation/core';
+import DashedLine from './DashedLine';
 
 export type Props = {
   renderProps: ListRenderItemInfo<RecordType>;
@@ -24,7 +25,9 @@ const AbstractRecord: React.FC<Props> = (props: Props) => {
         <View style={styles.indexContainer}>
           <Text style={styles.indexText}>{index + 1}</Text>
         </View>
-        <Text>{item.name}</Text>
+        <View style={styles.recordNameContainer}>
+          <Text style={styles.recordNameText}>{item.name}</Text>
+        </View>
         <View style={styles.operationIconContainer}>
           <View
             style={[
@@ -66,7 +69,12 @@ const AbstractRecord: React.FC<Props> = (props: Props) => {
           style={[
             showOperation ? CommonStyles.displayFlex : CommonStyles.displayNone,
           ]}>
-          {OperationComponent}
+          <View style={styles.dashedLineContainer}>
+            <DashedLine horiz={true} />
+          </View>
+          <View style={styles.operationRecord}>
+            {OperationComponent}
+          </View>
         </View>
       </View>
     </ListItem>
@@ -88,11 +96,25 @@ const styles = StyleSheet.create({
   operationContainer: {
     width: '100%',
   },
-  indexContainer: {},
+  indexContainer: {
+    flex: 1,
+  },
   indexText: {},
-  operationIconContainer: {},
-  detailIconContainer: {},
+  recordNameContainer: {
+    flex: 7,
+  },
+  recordNameText: {},
+  operationIconContainer: {
+    flex: 2,
+  },
+  detailIconContainer: {
+    flex: 1,
+  },
   iconContainer: {},
+  dashedLineContainer: {
+    marginVertical: 12,
+  },
+  operationRecord: {},
 });
 
 export default AbstractRecord;

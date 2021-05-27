@@ -2,8 +2,6 @@ import React from 'react';
 import {Text, View, StyleSheet} from 'react-native';
 
 const DashedLine = ({
-  style,
-  color,
   horiz = false,
   size = 10,
   length = 1000,
@@ -16,12 +14,11 @@ const DashedLine = ({
     a.push(i);
   }
   return (
-    <View>
+    <View style={[horiz ? styles.horizBox : styles.vertBox]}>
       {a.map(item => (
         <View
           key={item}
           style={[
-            horiz ? styles.horizBox : styles.vertBox,
             {backgroundColor: backgroundColor},
             horiz ? {width: size} : {height: size},
             horiz ? {marginRight: margin} : {marginBottom: margin},
@@ -34,15 +31,12 @@ const DashedLine = ({
 
 const styles = StyleSheet.create({
   horizBox: {
-    width: 10,
+    flexDirection: 'row',
     height: 1,
-    backgroundColor: '#EAEFF3',
   },
   vertBox: {
+    flexDirection: 'column',
     width: 1,
-    height: 10,
-    backgroundColor: '#EAEFF3',
-    marginBottom: 5,
   },
 });
 

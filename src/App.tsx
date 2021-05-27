@@ -20,7 +20,7 @@ const App: React.FC<Props> = ({}) => {
     <ThemeProvider>
       <SafeAreaProvider>
         <NavigationContainer>
-          <Stack.Navigator initialRouteName="Index">
+          <Stack.Navigator initialRouteName="RecordList">
             <Stack.Screen name="Index" component={Index} />
             <Stack.Screen name="AddRecord" component={AddRecord} />
             <Stack.Screen name="RecordList" component={RecordList} />

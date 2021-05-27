@@ -12,7 +12,7 @@ import Realm from 'realm';
 import {useNavigation} from '@react-navigation/core';
 import {ResultType} from '../database/database';
 import logger from '../log';
-import {ListItem} from 'react-native-elements';
+import {FAB, Icon, ListItem} from 'react-native-elements';
 import {EmptyObject} from '../common/constant';
 import AbstractRecord from '../components/AbstractRecord';
 
@@ -33,6 +33,9 @@ const RecordList: React.FC<Props> = ({}) => {
       setList(records);
     }
   }, [database]);
+  const gotoAddRecord = () => {
+    navigation.navigate('AddRecord');
+  }
   const renderItem = (props: ListRenderItemInfo<RecordType>) => {
     return (
       <View style={styles.renderItem}>
@@ -50,6 +53,16 @@ const RecordList: React.FC<Props> = ({}) => {
         renderItem={renderItem}
         keyExtractor={item => item._id.toHexString()}
       />
+      <FAB
+        containerStyle={styles.addContainer}
+        buttonStyle={styles.addBtn}
+        iconContainerStyle={styles.addIcon}
+        placement="right"
+        visible={true}
+        icon={<Icon name="add" />}
+        raised={true}
+        onPress={gotoAddRecord}
+      />
     </View>
   );
 };
@@ -57,12 +70,18 @@ const RecordList: React.FC<Props> = ({}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // alignItems: 'center',
-    // justifyContent: 'center'
   },
   renderItem: {
     width: '100%',
   },
+  addContainer: {},
+  addBtn: {
+    borderRadius: 28,
+    width: 56,
+    height: 56,
+    overflow: 'hidden',
+  },
+  addIcon: {},
 });
 
 export default RecordList;

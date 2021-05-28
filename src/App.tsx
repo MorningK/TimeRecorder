@@ -10,14 +10,16 @@ import Index from './screens/Index';
 import AddRecord from './screens/AddRecord';
 import RecordList from './screens/RecordList';
 import RecordItemList from './screens/RecordItemList';
-
-export type Props = {};
+import {useColorScheme} from 'react-native';
+import {EmptyObject} from './common/constant';
+export type Props = EmptyObject;
 
 const Stack = createStackNavigator();
 
 const App: React.FC<Props> = ({}) => {
+  const colorScheme = useColorScheme();
   return (
-    <ThemeProvider>
+    <ThemeProvider useDark={colorScheme === 'dark'}>
       <SafeAreaProvider>
         <NavigationContainer>
           <Stack.Navigator initialRouteName="RecordList">

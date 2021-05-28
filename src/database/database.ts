@@ -17,17 +17,44 @@ export const closeDatabase = (db: DatabaseType) => {
   db && db.close();
 };
 
-export const createObject = async (
+export const createObject = async <T>(
   database: DatabaseType,
   objectName: string,
-  data: object,
+  data: T,
 ) => {
-  return (
-    database &&
-    database.write(() => {
-      database.create(objectName, data);
-    })
-  );
+  if (database) {
+    return new Promise<T & Realm.Object>((resolve, reject) => {
+      database.write(() => {
+        try {
+          resolve(database.create<T>(objectName, data));
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+  }
+  return null;
+};
+
+export const updateObject = async <T>(
+  database: DatabaseType,
+  objectName: string,
+  id: ObjectId | string | number,
+  updater: (origin: T & Realm.Object) => T & Realm.Object,
+) => {
+  if (database) {
+    return new Promise<T & Realm.Object>((resolve, reject) => {
+      database.write(() => {
+        const data = database.objectForPrimaryKey<T>(objectName, id);
+        if (data) {
+          resolve(updater(data));
+        } else {
+          reject(data);
+        }
+      });
+    });
+  }
+  return null;
 };
 
 export type DatabaseType = Realm | null;

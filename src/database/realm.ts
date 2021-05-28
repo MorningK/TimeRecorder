@@ -34,6 +34,7 @@ export class Record {
       create_time: new Date(),
       name: name,
       type: type,
+      items: [],
     };
   }
 }
@@ -57,7 +58,7 @@ export class RecordItems {
         property: 'items',
       },
       create_time: 'date',
-      value: 'int',
+      value: 'double',
     },
   };
   public data: RecordItemsType;
@@ -72,7 +73,7 @@ export class RecordItems {
 
 export const Schema = [Record, RecordItems];
 
-export const SchemaVersion = 1;
+export const SchemaVersion = 2;
 
 export const databaseStoragePath =
   Platform.OS === 'android' && Platform.Version >= 26

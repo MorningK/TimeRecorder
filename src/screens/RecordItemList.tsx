@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View, FlatList} from 'react-native';
 import {RouteProp} from '@react-navigation/native';
 import logger from '../log';
 import {useDatabase} from '../hooks';
-import {Record, RecordType} from '../database/realm';
+import {Record, RecordItemsType, RecordType} from '../database/realm';
 import {ObjectId} from 'bson';
 import Realm from 'realm';
 import moment from 'moment';
@@ -29,6 +29,16 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
       setRecord(result);
     }
   }, [database, recordId]);
+  const renderItem = (props: {item: RecordItemsType; index: number}) => {
+    const {item, index} = props;
+    return (
+      <View>
+        <Text>{index + 1}</Text>
+        <Text>{item.value}</Text>
+        <Text>{moment(item.create_time).format('YYYY-MM-DD HH:mm:ss')}</Text>
+      </View>
+    );
+  };
   return (
     <View style={styles.container}>
       <Text>记录名称：{record != null && record.name}</Text>
@@ -37,6 +47,11 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
         {record != null &&
           moment(record.create_time).format('YYYY-MM-DD HH:mm:ss')}
       </Text>
+      <FlatList
+        data={record?.items}
+        renderItem={renderItem}
+        keyExtractor={item => item._id.toHexString()}
+      />
     </View>
   );
 };

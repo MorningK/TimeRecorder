@@ -7,14 +7,19 @@ import {
   View,
 } from 'react-native';
 import {useDatabase} from '../hooks';
-import {Record, RecordType} from '../database/realm';
+import {Record, RecordItems, RecordItemsType, RecordType} from '../database/realm';
 import Realm from 'realm';
 import {useNavigation} from '@react-navigation/core';
-import {ResultType} from '../database/database';
+import {createObject, ResultType, updateObject} from '../database/database';
 import logger from '../log';
 import {FAB, Icon, ListItem} from 'react-native-elements';
-import {EmptyObject} from '../common/constant';
+import {
+  EmptyObject,
+  PERCENTAGE_RECORD_TYPE,
+  RecordeTypes,
+} from '../common/constant';
 import AbstractRecord from '../components/AbstractRecord';
+import PercentageRecordOperation from '../components/PercentageRecordOperation';
 
 export type Props = EmptyObject;
 
@@ -35,13 +40,57 @@ const RecordList: React.FC<Props> = ({}) => {
   }, [database]);
   const gotoAddRecord = () => {
     navigation.navigate('AddRecord');
-  }
+  };
   const renderItem = (props: ListRenderItemInfo<RecordType>) => {
+    const {item: record} = props;
+    const onComplete = async (data: {
+      value: number | string;
+      step?: number;
+    }) => {
+      console.log('onComplete', data);
+      const value =
+        typeof data.value === 'string' ? parseFloat(data.value) : data.value;
+      try {
+        const recordItem: (RecordItemsType & Realm.Object) | null =
+          await createObject<RecordItemsType>(
+            database,
+            RecordItems.schema.name,
+            new RecordItems(value).data,
+          );
+        if (recordItem) {
+          console.log('record is ', record, '; recordItem is', recordItem);
+          const result = await updateObject<RecordType>(
+            database,
+            Record.schema.name,
+            record._id,
+            object => {
+              if (object.items && object.items.length > 0) {
+                object.items.push(recordItem);
+              } else {
+                object.items = [recordItem];
+              }
+              return object;
+            },
+          );
+          console.log('update result', result);
+        }
+        return recordItem !== null;
+      } catch (e) {
+        logger.error('save record item error', e);
+        return false;
+      }
+    };
+    let operationComponent = <EmptyElement />;
+    if (record.type === PERCENTAGE_RECORD_TYPE.value) {
+      operationComponent = (
+        <PercentageRecordOperation onComplete={onComplete} />
+      );
+    }
     return (
       <View style={styles.renderItem}>
         <AbstractRecord
           renderProps={props}
-          OperationComponent={EmptyElement()}
+          OperationComponent={operationComponent}
         />
       </View>
     );

@@ -60,3 +60,5 @@ buck-out/
 /android/app/release/
 /record.realm
 /record.realm.lock
+/lib/unimodules-core-7.1.0-sources.jar
+/lib/unimodules-react-native-adapter-6.2.2-sources.jar

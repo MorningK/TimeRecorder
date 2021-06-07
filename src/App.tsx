@@ -12,6 +12,7 @@ import RecordList from './screens/RecordList';
 import RecordItemList from './screens/RecordItemList';
 import {useColorScheme} from 'react-native';
 import {EmptyObject} from './common/constant';
+import RecordChart from './screens/RecordChart';
 export type Props = EmptyObject;
 
 const Stack = createStackNavigator();
@@ -27,6 +28,7 @@ const App: React.FC<Props> = ({}) => {
             <Stack.Screen name="AddRecord" component={AddRecord} />
             <Stack.Screen name="RecordList" component={RecordList} />
             <Stack.Screen name="RecordItemList" component={RecordItemList} />
+            <Stack.Screen name="RecordChart" component={RecordChart} />
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaProvider>

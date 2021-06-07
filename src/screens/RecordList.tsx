@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   FlatList,
   ListRenderItemInfo,
@@ -7,9 +7,14 @@ import {
   View,
 } from 'react-native';
 import {useDatabase} from '../hooks';
-import {Record, RecordItems, RecordItemsType, RecordType} from '../database/realm';
+import {
+  Record,
+  RecordItems,
+  RecordItemsType,
+  RecordType,
+} from '../database/realm';
 import Realm from 'realm';
-import {useNavigation} from '@react-navigation/core';
+import {useNavigation, useFocusEffect} from '@react-navigation/core';
 import {createObject, ResultType, updateObject} from '../database/database';
 import logger from '../log';
 import {FAB, Icon, ListItem} from 'react-native-elements';
@@ -20,6 +25,7 @@ import {
 } from '../common/constant';
 import AbstractRecord from '../components/AbstractRecord';
 import PercentageRecordOperation from '../components/PercentageRecordOperation';
+import {ObjectId} from 'bson';
 
 export type Props = EmptyObject;
 
@@ -31,13 +37,16 @@ const RecordList: React.FC<Props> = ({}) => {
   const navigation = useNavigation();
   const [list, setList] = useState([] as ResultType);
   const database = useDatabase();
-  useEffect(() => {
-    if (database != null) {
-      const records = database.objects(Record.schema.name);
-      logger.log('get records', records);
+  const getRecords = useCallback(() => {
+    if (database != null && !database.isClosed) {
+      const records = database.objects<RecordType>(Record.schema.name);
+      logger.log('get records', records.length);
       setList(records);
+    } else {
+      setList([]);
     }
   }, [database]);
+  useFocusEffect(getRecords);
   const gotoAddRecord = () => {
     navigation.navigate('AddRecord');
   };
@@ -47,6 +56,10 @@ const RecordList: React.FC<Props> = ({}) => {
       value: number | string;
       step?: number;
     }) => {
+      if (database == null) {
+        logger.error('database is null');
+        return false;
+      }
       console.log('onComplete', data);
       const value =
         typeof data.value === 'string' ? parseFloat(data.value) : data.value;
@@ -55,7 +68,13 @@ const RecordList: React.FC<Props> = ({}) => {
           await createObject<RecordItemsType>(
             database,
             RecordItems.schema.name,
-            new RecordItems(value).data,
+            new RecordItems(
+              value,
+              database.objectForPrimaryKey<RecordType>(
+                Record.schema.name,
+                record._id,
+              ),
+            ).data,
           );
         if (recordItem) {
           console.log('record is ', record, '; recordItem is', recordItem);
@@ -83,7 +102,7 @@ const RecordList: React.FC<Props> = ({}) => {
     let operationComponent = <EmptyElement />;
     if (record.type === PERCENTAGE_RECORD_TYPE.value) {
       operationComponent = (
-        <PercentageRecordOperation onComplete={onComplete} />
+        <PercentageRecordOperation showRating={true} onComplete={onComplete} />
       );
     }
     return (

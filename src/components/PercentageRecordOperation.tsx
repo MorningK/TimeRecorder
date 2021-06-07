@@ -3,26 +3,41 @@ import {StyleSheet, Text, View} from 'react-native';
 import { Rating, AirbnbRating } from 'react-native-elements';
 
 export type Props = {
-  onComplete: (data: {
+  onComplete?: (data: {
     value: number | string;
     step?: number;
   }) => Promise<boolean>;
+  readonly?: boolean;
+  value?: number;
+  showRating?: boolean;
+  imageSize?: number;
 };
-const count = 5;
+const count = 10;
 
-const PercentageRecordOperation: React.FC<Props> = ({onComplete}: Props) => {
+const PercentageRecordOperation: React.FC<Props> = ({
+  onComplete,
+  readonly,
+  value,
+  showRating = false,
+  imageSize = 25,
+}: Props) => {
   const onFinishRating = async (rating: number) => {
-    console.log('onFinishRating', rating);
-    const success = await onComplete({value: rating / count});
-    console.log('save result', success);
+    if (onComplete) {
+      console.log('onFinishRating', rating);
+      const success = await onComplete({value: rating / count});
+      console.log('save result', success);
+    }
   };
   return (
     <View style={styles.container}>
       <Rating
         ratingCount={count}
+        readonly={readonly}
+        startingValue={value ? value * count : 0}
         fractions={1}
         onFinishRating={onFinishRating}
-        showRating={true}
+        showRating={showRating}
+        imageSize={imageSize}
       />
     </View>
   );

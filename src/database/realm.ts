@@ -62,11 +62,12 @@ export class RecordItems {
     },
   };
   public data: RecordItemsType;
-  constructor(value: number) {
+  constructor(value: number, owner?: RecordType) {
     this.data = {
       _id: new ObjectId(),
       create_time: new Date(),
       value: value,
+      owner: owner,
     };
   }
 }

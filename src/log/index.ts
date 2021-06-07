@@ -1,8 +1,4 @@
-import {
-  logger,
-  consoleTransport,
-  fileAsyncTransport,
-} from 'react-native-logs';
+import {logger, consoleTransport, fileAsyncTransport} from 'react-native-logs';
 import RNFS from 'react-native-fs';
 import moment from 'moment';
 

@@ -7,7 +7,12 @@ import {
   View,
 } from 'react-native';
 import {useDatabase} from '../hooks';
-import {Record, RecordItems, RecordItemsType, RecordType} from '../database/realm';
+import {
+  Record,
+  RecordItems,
+  RecordItemsType,
+  RecordType,
+} from '../database/realm';
 import Realm from 'realm';
 import {useNavigation} from '@react-navigation/core';
 import {createObject, ResultType, updateObject} from '../database/database';

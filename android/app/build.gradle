@@ -126,6 +126,11 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
+    dexOptions{
+        preDexLibraries = false;
+        javaMaxHeapSize "2g"
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8

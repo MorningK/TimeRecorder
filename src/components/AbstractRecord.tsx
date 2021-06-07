@@ -72,9 +72,7 @@ const AbstractRecord: React.FC<Props> = (props: Props) => {
           <View style={styles.dashedLineContainer}>
             <DashedLine horiz={true} />
           </View>
-          <View style={styles.operationRecord}>
-            {OperationComponent}
-          </View>
+          <View style={styles.operationRecord}>{OperationComponent}</View>
         </View>
       </View>
     </ListItem>

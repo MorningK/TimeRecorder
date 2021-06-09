@@ -73,6 +73,7 @@ const AddRecord: React.FC<Props> = ({}) => {
           {RecordeTypes.map(recordType => (
             <View key={recordType.value}>
               <CheckBox
+                containerStyle={styles.checkboxContainer}
                 checkedIcon={<Icon name="radio-button-checked" />}
                 uncheckedIcon={<Icon name="radio-button-unchecked" />}
                 title={recordType.name}
@@ -109,16 +110,32 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'column',
   },
-  inputLabel: {},
-  recordLabel: {},
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#86939e',
+  },
+  recordLabel: {
+    paddingHorizontal: 10,
+  },
+  checkboxContainer: {
+    paddingHorizontal: 0,
+    marginHorizontal: 0,
+  },
   operations: {
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignContent: 'center',
   },
-  errorMsg: {},
-  typeErrorMsg: {},
+  errorMsg: {
+    color: '#ff190c',
+    fontSize: 12,
+  },
+  typeErrorMsg: {
+    margin: 5,
+    paddingHorizontal: 10,
+  },
 });
 
 export default AddRecord;

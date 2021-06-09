@@ -41,7 +41,10 @@ export const useRecord = (database: DatabaseType, recordId: string) => {
       } else {
         setRecord({} as (RecordType & Realm.Object) | undefined);
       }
-    }, [database, recordId]),
+      return () => {
+        setRecord({} as (RecordType & Realm.Object) | undefined);
+      };
+    }, [database, database?.isClosed, recordId]),
   );
   return record;
 };

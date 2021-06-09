@@ -121,8 +121,7 @@ const styles = StyleSheet.create({
   listContainer: {
     width: '100%',
   },
-  recordItemContainer: {
-  },
+  recordItemContainer: {},
   listItemContainer: {},
   recordItemContentContainer: {
     flexDirection: 'row',

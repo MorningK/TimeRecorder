@@ -48,7 +48,14 @@ const RecordChart: React.FC<Props> = ({route}: Props) => {
     return `${value * 100}`;
   };
   const xAccessor = (entry: {item: RecordItemsType; index: number}) => {
-    return entry.item.create_time.getTime();
+    // if (record !== undefined) {
+    //   return (
+    //     (entry.item.create_time.getTime() - record?.create_time.getTime()) /
+    //     (1000 * 60 * 60 * 24)
+    //   );
+    // }
+    // return entry.item.create_time.getTime() / (1000 * 60 * 60 * 24);
+    return entry.index + 1;
   };
   const formatXLabel = (value: any, index: number) => {
     console.log('formatXLabel value, index', value, index);

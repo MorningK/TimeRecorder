@@ -8,8 +8,8 @@ import {ObjectId} from 'bson';
 import Realm from 'realm';
 import moment from 'moment';
 import {Icon, ListItem} from 'react-native-elements';
-import {PERCENTAGE_RECORD_TYPE} from '../common/constant';
-import PercentageRecordOperation from '../components/PercentageRecordOperation';
+import {RATING_RECORD_TYPE} from '../common/constant';
+import RatingRecordOperation from '../components/RatingRecordOperation';
 import {useFocusEffect, useNavigation} from '@react-navigation/core';
 
 export type Props = {
@@ -30,9 +30,9 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
     let valueComponent = (
       <Text style={styles.recordValueText}>{item.value}</Text>
     );
-    if (record?.type === PERCENTAGE_RECORD_TYPE.value) {
+    if (record?.type === RATING_RECORD_TYPE.value) {
       valueComponent = (
-        <PercentageRecordOperation
+        <RatingRecordOperation
           readonly={true}
           value={item.value}
           showRating={false}

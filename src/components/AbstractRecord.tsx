@@ -11,9 +11,11 @@ export type Props = {
   OperationComponent: React.FC | React.Component | Element;
 };
 
-const AbstractRecord: React.FC<Props> = (props: Props) => {
+const AbstractRecord: React.FC<Props> = ({
+  renderProps,
+  OperationComponent,
+}: Props) => {
   const navigation = useNavigation();
-  const {renderProps, OperationComponent} = props;
   const {item, index} = renderProps;
   const [showOperation, setShowOperation] = useState(false);
   const gotoRecordItemList = () => {

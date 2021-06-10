@@ -1,20 +1,17 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {Rating, AirbnbRating} from 'react-native-elements';
+import {RecordOperationProps} from "../screens/RecordList";
 
 export type Props = {
-  onComplete?: (data: {
-    value: number | string;
-    step?: number;
-  }) => Promise<boolean>;
   readonly?: boolean;
   value?: number;
   showRating?: boolean;
   imageSize?: number;
-};
+} & RecordOperationProps;
 const count = 10;
 
-const PercentageRecordOperation: React.FC<Props> = ({
+const RatingRecordOperation: React.FC<Props> = ({
   onComplete,
   readonly,
   value,
@@ -51,4 +48,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PercentageRecordOperation;
+export default RatingRecordOperation;

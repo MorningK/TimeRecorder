@@ -19,15 +19,29 @@ import {createObject, ResultType, updateObject} from '../database/database';
 import logger from '../log';
 import {FAB, Icon, ListItem} from 'react-native-elements';
 import {
-  EmptyObject,
-  PERCENTAGE_RECORD_TYPE,
-  RecordeTypes,
+  BOOLEAN_RECORD_TYPE,
+  COUNTING_RECORD_TYPE,
+  EmptyObject, INPUTTING_RECORD_TYPE,
+  RATING_RECORD_TYPE,
+  RecordeTypes, Timing_RECORD_TYPE,
 } from '../common/constant';
 import AbstractRecord from '../components/AbstractRecord';
-import PercentageRecordOperation from '../components/PercentageRecordOperation';
+import RatingRecordOperation from '../components/RatingRecordOperation';
 import {ObjectId} from 'bson';
+import CountingRecordOperation from "../components/CountingRecordOperation";
+import TimingRecordOperation from "../components/TimingRecordOperation";
+import Toast from "react-native-simple-toast";
+import InputtingRecordOperation from "../components/InputtingRecordOperation";
+import BooleanRecordOperation from "../components/BooleanRecordOperation";
 
 export type Props = EmptyObject;
+
+export type RecordOperationProps = {
+  onComplete: (data: {
+    value: number | string;
+    step?: number;
+  }) => Promise<boolean>;
+};
 
 const EmptyElement = () => {
   return <Text>添加记录项</Text>;
@@ -58,6 +72,7 @@ const RecordList: React.FC<Props> = ({}) => {
     }) => {
       if (database == null) {
         logger.error('database is null');
+        Toast.show('保存失败');
         return false;
       }
       console.log('onComplete', data);
@@ -93,6 +108,7 @@ const RecordList: React.FC<Props> = ({}) => {
           );
           console.log('update result', result);
         }
+        Toast.show(recordItem !== null ? '保存成功' : '保存失败');
         return recordItem !== null;
       } catch (e) {
         logger.error('save record item error', e);
@@ -100,10 +116,23 @@ const RecordList: React.FC<Props> = ({}) => {
       }
     };
     let operationComponent = <EmptyElement />;
-    if (record.type === PERCENTAGE_RECORD_TYPE.value) {
+    if (record.type === RATING_RECORD_TYPE.value) {
       operationComponent = (
-        <PercentageRecordOperation showRating={true} onComplete={onComplete} />
+        <RatingRecordOperation showRating={true} onComplete={onComplete} />
       );
+    } else if (record.type === COUNTING_RECORD_TYPE.value) {
+      operationComponent = (
+        <CountingRecordOperation
+          value={record.items?.length}
+          onComplete={onComplete}
+        />
+      );
+    } else if (record.type === Timing_RECORD_TYPE.value) {
+      operationComponent = <TimingRecordOperation onComplete={onComplete} />;
+    } else if (record.type === INPUTTING_RECORD_TYPE.value) {
+      operationComponent = <InputtingRecordOperation onComplete={onComplete} />;
+    } else if (record.type === BOOLEAN_RECORD_TYPE.value) {
+      operationComponent = <BooleanRecordOperation onComplete={onComplete} />;
     }
     return (
       <View style={styles.renderItem}>

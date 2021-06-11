@@ -1,16 +1,24 @@
-import React, {useCallback, useEffect, useState} from 'react';
-import {StyleSheet, Text, View, FlatList} from 'react-native';
+import React, {createRef, useCallback, useEffect, useState} from 'react';
+import {StyleSheet, Text, View, FlatList, TextInput} from 'react-native';
 import {RouteProp} from '@react-navigation/native';
 import logger from '../log';
 import {useDatabase, useRecord} from '../hooks';
-import {Record, RecordItemsType, RecordType} from '../database/realm';
+import {
+  Record,
+  RecordItems,
+  RecordItemsType,
+  RecordType,
+} from '../database/realm';
 import {ObjectId} from 'bson';
 import Realm from 'realm';
 import moment from 'moment';
-import {Icon, ListItem} from 'react-native-elements';
+import {Icon, Input, ListItem} from 'react-native-elements';
 import {RATING_RECORD_TYPE} from '../common/constant';
 import RatingRecordOperation from '../components/RatingRecordOperation';
 import {useFocusEffect, useNavigation} from '@react-navigation/core';
+import {defaultRecordOperationProps} from './RecordList';
+import Toast from 'react-native-simple-toast';
+import {updateObject} from '../database/database';
 
 export type Props = {
   route: RouteProp<{params: {recordId: string}}, 'params'>;
@@ -21,9 +29,53 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
   logger.log('recordId', recordId);
   const database = useDatabase();
   const navigation = useNavigation();
+  const [editable, setEditable] = useState(false);
+  const [name, setName] = useState('');
+  const inputRef = createRef<TextInput>();
   const record = useRecord(database, recordId);
+  useEffect(() => {
+    record && setName(record?.name);
+  }, [record]);
   const gotoRecordChart = () => {
     navigation.navigate('RecordChart', {recordId: record?._id.toHexString()});
+  };
+  const editRecordName = () => {
+    setEditable(state => !state);
+  };
+  const onValueChange = (value: string) => {
+    setName(value);
+  };
+  const onSubmit = () => {
+    console.log('new name is', name);
+    if (name === record?.name) {
+      setEditable(false);
+      return;
+    }
+    if (name.length === 0) {
+      Toast.show('请输入新的记录名称');
+      return;
+    }
+    if (record) {
+      updateObject<RecordType>(
+        database,
+        Record.schema.name,
+        record._id,
+        origin => {
+          origin.name = name;
+          return origin;
+        },
+      )
+        .then(value => {
+          setEditable(false);
+          console.log('update name', value);
+          Toast.show('更新成功');
+        })
+        .catch(e => {
+          Toast.show('更新失败');
+        });
+    } else {
+      Toast.show('更新失败');
+    }
   };
   const renderItem = (props: {item: RecordItemsType; index: number}) => {
     const {item, index} = props;
@@ -33,6 +85,7 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
     if (record?.type === RATING_RECORD_TYPE.value) {
       valueComponent = (
         <RatingRecordOperation
+          onComplete={defaultRecordOperationProps.onComplete}
           readonly={true}
           value={item.value}
           showRating={false}
@@ -63,12 +116,34 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
   return (
     <View style={styles.container}>
       <View style={styles.topContainer}>
-        <View>
+        <View style={styles.displayContainer}>
           <View style={styles.nameContainer}>
-            <Text style={styles.nameText}>
-              记录名称：{record != null && record.name}
-            </Text>
+            <Text style={styles.nameText}>记录名称：</Text>
+            {!editable && (
+              <View style={styles.editNameContainer}>
+                <Text style={styles.nameText}>
+                  {record != null && record.name}
+                </Text>
+                <Icon
+                  containerStyle={styles.editIcon}
+                  name={'edit'}
+                  size={24}
+                  onPress={editRecordName}
+                />
+              </View>
+            )}
           </View>
+          {editable && (
+            <View style={styles.inputContainer}>
+              <Input
+                ref={inputRef}
+                placeholder={'请输入新的记录名称'}
+                onChangeText={onValueChange}
+                defaultValue={record?.name}
+                rightIcon={<Icon name={'done'} onPress={onSubmit} />}
+              />
+            </View>
+          )}
           <View style={styles.createTimeContainer}>
             <Text style={styles.createTimeText}>
               创建时间：
@@ -106,14 +181,36 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 12,
   },
+  displayContainer: {
+    width: '80%',
+  },
   iconContainer: {
+    width: '20%',
     justifyContent: 'center',
     alignItems: 'center',
   },
   nameContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center',
+  },
+  editNameContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  nameText: {
+    fontSize: 24,
+  },
+  editIcon: {
+    paddingHorizontal: 12,
+  },
+  inputContainer: {
+    display: 'flex',
+    flexDirection: 'row',
     width: '100%',
   },
-  nameText: {},
   createTimeContainer: {
     width: '100%',
   },

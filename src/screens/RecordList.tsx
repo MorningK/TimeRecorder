@@ -42,6 +42,11 @@ export type RecordOperationProps = {
     step?: number;
   }) => Promise<boolean>;
 };
+export const defaultRecordOperationProps: RecordOperationProps = {
+  onComplete: data => {
+    return Promise.resolve(true);
+  },
+};
 
 const EmptyElement = () => {
   return <Text>添加记录项</Text>;

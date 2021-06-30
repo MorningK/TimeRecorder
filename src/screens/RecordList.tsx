@@ -15,24 +15,31 @@ import {
 } from '../database/realm';
 import Realm from 'realm';
 import {useNavigation, useFocusEffect} from '@react-navigation/core';
-import {createObject, ResultType, updateObject} from '../database/database';
+import {
+  createObject,
+  deleteObject,
+  ResultType,
+  updateObject,
+} from '../database/database';
 import logger from '../log';
 import {FAB, Icon, ListItem} from 'react-native-elements';
 import {
   BOOLEAN_RECORD_TYPE,
   COUNTING_RECORD_TYPE,
-  EmptyObject, INPUTTING_RECORD_TYPE,
+  EmptyObject,
+  INPUTTING_RECORD_TYPE,
   RATING_RECORD_TYPE,
-  RecordeTypes, Timing_RECORD_TYPE,
+  RecordeTypes,
+  Timing_RECORD_TYPE,
 } from '../common/constant';
 import AbstractRecord from '../components/AbstractRecord';
 import RatingRecordOperation from '../components/RatingRecordOperation';
 import {ObjectId} from 'bson';
-import CountingRecordOperation from "../components/CountingRecordOperation";
-import TimingRecordOperation from "../components/TimingRecordOperation";
-import Toast from "react-native-simple-toast";
-import InputtingRecordOperation from "../components/InputtingRecordOperation";
-import BooleanRecordOperation from "../components/BooleanRecordOperation";
+import CountingRecordOperation from '../components/CountingRecordOperation';
+import TimingRecordOperation from '../components/TimingRecordOperation';
+import Toast from 'react-native-simple-toast';
+import InputtingRecordOperation from '../components/InputtingRecordOperation';
+import BooleanRecordOperation from '../components/BooleanRecordOperation';
 
 export type Props = EmptyObject;
 
@@ -120,6 +127,22 @@ const RecordList: React.FC<Props> = ({}) => {
         return false;
       }
     };
+    const onDelete = () => {
+      console.log('delete item', record);
+      return new Promise<boolean>((resolve, reject) => {
+        deleteObject(database, Record.schema.name, record._id)
+          .then(success => {
+            Toast.show(success ? '删除成功' : '删除失败');
+            success && getRecords();
+            resolve(success);
+          })
+          .catch(e => {
+            console.error('delete error', e);
+            Toast.show('删除失败');
+            reject(e);
+          });
+      });
+    };
     let operationComponent = <EmptyElement />;
     if (record.type === RATING_RECORD_TYPE.value) {
       operationComponent = (
@@ -144,6 +167,7 @@ const RecordList: React.FC<Props> = ({}) => {
         <AbstractRecord
           renderProps={props}
           OperationComponent={operationComponent}
+          onDelete={onDelete}
         />
       </View>
     );

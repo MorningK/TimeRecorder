@@ -12,8 +12,10 @@ An app to record daily life
 * 每条记录都带有创建时间，可以通过记录来探索时间和记录值之间的关系
 ## todos
 * ~~modify record name~~
-* delete record
-* delete record item
+* ~~delete record~~
+* delete record items
+* search record
+* search record items
 * data chart
 * UI
 ## 首页

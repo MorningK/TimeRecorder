@@ -57,5 +57,27 @@ export const updateObject = async <T>(
   return null;
 };
 
+export const deleteObject = async (
+  database: DatabaseType,
+  objectName: string,
+  id: ObjectId | string | number,
+) => {
+  if (database) {
+    return new Promise<boolean>((resolve, reject) => {
+      database.write(() => {
+        try {
+          const data = database.objectForPrimaryKey(objectName, id);
+          database.delete(data);
+          return resolve(true);
+        } catch (e) {
+          return reject(e);
+        }
+      });
+    });
+  } else {
+    return false;
+  }
+};
+
 export type DatabaseType = Realm | null;
 export type ResultType = Realm.Results<any> | null | Array<any>;

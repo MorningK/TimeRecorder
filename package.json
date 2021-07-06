@@ -28,6 +28,7 @@
     "react-native-linear-gradient": "^2.5.6",
     "react-native-logs": "^3.0.3",
     "react-native-reanimated": "^2.1.0",
+    "react-native-responsive-linechart": "^5.7.1",
     "react-native-safe-area-context": "^3.2.0",
     "react-native-screens": "^3.2.0",
     "react-native-simple-toast": "^1.1.3",

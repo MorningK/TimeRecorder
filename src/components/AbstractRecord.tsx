@@ -33,9 +33,7 @@ const AbstractRecord: React.FC<Props> = ({
   const navigation = useNavigation();
   const {item, index} = renderProps;
   const [showOperation, setShowOperation] = useState(false);
-  const [height, setHeight] = useState(100);
   const [popover, setPopover] = useState(false);
-  const listItemRef = createRef();
   const tooltipRef = createRef();
   const gotoRecordItemList = () => {
     navigation.navigate('RecordItemList', {recordId: item._id.toHexString()});
@@ -50,19 +48,10 @@ const AbstractRecord: React.FC<Props> = ({
       tooltipRef.current?.toggleTooltip();
     }
   };
-  const onLayout = (event: LayoutChangeEvent) => {
-    const {
-      nativeEvent: {
-        layout: {width, height, x, y},
-      },
-    } = event;
-    console.log('onLayout', {width, height, x, y});
-    setHeight(height);
-  };
   return (
     <Tooltip
       ref={tooltipRef}
-      containerStyle={{padding: 0}}
+      containerStyle={styles.tooltip}
       backgroundColor={'#222222'}
       height={30}
       width={120}
@@ -74,9 +63,9 @@ const AbstractRecord: React.FC<Props> = ({
       popover={
         <ButtonGroup
           onPress={onChoose}
-          containerStyle={{height: 30, borderWidth: 0}}
-          buttonStyle={{backgroundColor: '#222222'}}
-          textStyle={{color: 'white'}}
+          containerStyle={styles.bgContainer}
+          buttonStyle={styles.bgBtn}
+          textStyle={styles.bgText}
           buttons={['删除', '取消']}
         />
       }>
@@ -156,6 +145,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignContent: 'flex-start',
   },
+  tooltip: {
+    padding: 0,
+  },
+  bgContainer: {height: 30, borderWidth: 0},
+  bgBtn: {backgroundColor: '#222222'},
+  bgText: {color: 'white'},
   displayContainer: {
     width: '100%',
     flexDirection: 'row',

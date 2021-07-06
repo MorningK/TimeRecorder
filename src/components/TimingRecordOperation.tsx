@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import {Text, View, StyleSheet} from 'react-native';
-import {RecordOperationProps} from "../screens/RecordList";
-import {Icon} from "react-native-elements";
-import Toast from "react-native-simple-toast";
+import {RecordOperationProps} from '../screens/RecordList';
+import {Icon} from 'react-native-elements';
+import Toast from 'react-native-simple-toast';
 
 export type TimingRecordOperationProps = {} & RecordOperationProps;
 

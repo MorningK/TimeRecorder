@@ -1,7 +1,7 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {Rating, AirbnbRating} from 'react-native-elements';
-import {RecordOperationProps} from "../screens/RecordList";
+import {RecordOperationProps} from '../screens/RecordList';
 
 export type Props = {
   readonly?: boolean;

@@ -15,15 +15,24 @@ import {useFocusEffect} from '@react-navigation/core';
 import {ObjectId} from 'bson';
 import {LineChart, XAxis, YAxis, Grid} from 'react-native-svg-charts';
 import moment from 'moment';
+import {
+  Chart,
+  Line,
+  Area,
+  HorizontalAxis,
+  VerticalAxis,
+  Tooltip,
+  ChartDataPoint,
+} from 'react-native-responsive-linechart';
 
 export type Props = {
   route: RouteProp<{params: {recordId: string}}, 'params'>;
 };
 const contentInset = {
-  top: 10,
-  bottom: 10,
-  left: 10,
-  right: 10,
+  top: 50,
+  bottom: 50,
+  left: 100,
+  right: 100,
 };
 
 const RecordChart: React.FC<Props> = ({route}: Props) => {
@@ -33,73 +42,65 @@ const RecordChart: React.FC<Props> = ({route}: Props) => {
   const record = useRecord(database, recordId);
   const data = useMemo(() => {
     const items = record?.items || [];
-    return items.map(item => ({
-      _id: item._id,
-      value: item.value,
-      create_time: item.create_time,
+    return items.map((item, index) => ({
+      meta: {
+        _id: item._id.toHexString(),
+        value: item.value,
+        create_time: item.create_time,
+      },
+      x: index,
+      y: item.value,
     }));
   }, [record]);
   console.log('data', data);
-  const yAccessor = (entry: {item: RecordItemsType; index: number}) => {
-    return entry.item.value;
+  const onTooltipSelect = (value: ChartDataPoint, index: number) => {
+    console.log('onTooltipSelect', value, index);
   };
-  const formatYLabel = (value: any, index: number) => {
-    console.log('formatYLabel value, index', value, index);
-    return `${value * 100}`;
-  };
-  const xAccessor = (entry: {item: RecordItemsType; index: number}) => {
-    // if (record !== undefined) {
-    //   return (
-    //     (entry.item.create_time.getTime() - record?.create_time.getTime()) /
-    //     (1000 * 60 * 60 * 24)
-    //   );
-    // }
-    // return entry.item.create_time.getTime() / (1000 * 60 * 60 * 24);
-    return entry.index + 1;
-  };
-  const formatXLabel = (value: any, index: number) => {
-    console.log('formatXLabel value, index', value, index);
-    return `${index + 1}`;
+  const tooltipTheme = {
+    shape: {
+      width: 200,
+    },
+    formatter: (p: ChartDataPoint) => {
+      const time = moment(p.meta.create_time).format('YYYY-MM-DD HH:mm:ss.SSS');
+      return `${p.y} # ${time}`;
+    },
   };
   if (data.length <= 0) {
     return <ActivityIndicator />;
   }
   return (
     <View style={styles.container}>
-      <View style={styles.yAxisContainer}>
-        <YAxis
-          yAccessor={yAccessor}
-          style={styles.yAxis}
-          data={data}
-          formatLabel={formatYLabel}
-          contentInset={contentInset}
-          svg={{
-            fill: 'grey',
-            fontSize: 10,
-          }}
-        />
-        <LineChart
-          style={styles.chart}
-          data={data}
-          yAccessor={yAccessor}
-          xAccessor={xAccessor}
-          animate={true}
-          contentInset={contentInset}
-          svg={{stroke: 'rgb(134, 65, 244)'}}>
-          <Grid svg={{fill: 'grey'}} direction={Grid.Direction.BOTH} />
-        </LineChart>
-      </View>
-      <XAxis
-        xAccessor={xAccessor}
-        style={styles.xAxis}
+      <Chart
+        style={styles.container}
         data={data}
-        formatLabel={formatXLabel}
-        contentInset={contentInset}
-        svg={{
-          fill: 'grey',
-          fontSize: 10,
-        }}
-      />
+        yDomain={{min: 0, max: 1}}
+        xDomain={{min: 0, max: data.length}}
+        padding={contentInset}
+        viewport={{
+          size: {width: Math.min(10, data.length), height: 1},
+          initialOrigin: {x: 0, y: 0},
+        }}>
+        <VerticalAxis
+          tickCount={11}
+          theme={{labels: {formatter: v => v.toFixed(2)}}}
+        />
+        <HorizontalAxis tickValues={data.map(p => p.x)} />
+        <Area
+          theme={{
+            gradient: {
+              from: {color: '#3265bd'},
+              to: {color: '#3265bd', opacity: 0.2},
+            },
+          }}
+          smoothing={'cubic-spline'}
+        />
+        <Line
+          tooltipComponent={<Tooltip theme={tooltipTheme} />}
+          onTooltipSelect={onTooltipSelect}
+          smoothing={'cubic-spline'}
+          theme={{stroke: {color: '#12449b', width: 2}}}
+        />
+      </Chart>
     </View>
   );
 };
@@ -107,10 +108,10 @@ const RecordChart: React.FC<Props> = ({route}: Props) => {
 const styles = StyleSheet.create({
   container: {
     display: 'flex',
-    flexDirection: 'column',
-    width: '100%',
-    height: '100%',
-    padding: 12,
+    flex: 1,
+    // flexDirection: 'column',
+    // width: '100%',
+    // height: '100%',
   },
   yAxisContainer: {
     display: 'flex',

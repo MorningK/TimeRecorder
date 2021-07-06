@@ -13,12 +13,18 @@ import {ObjectId} from 'bson';
 import Realm from 'realm';
 import moment from 'moment';
 import {Icon, Input, ListItem} from 'react-native-elements';
-import {RATING_RECORD_TYPE} from '../common/constant';
+import {
+  BOOLEAN_RECORD_TYPE,
+  COUNTING_RECORD_TYPE, INPUTTING_RECORD_TYPE,
+  RATING_RECORD_TYPE,
+  TIMING_RECORD_TYPE,
+} from '../common/constant';
 import RatingRecordOperation from '../components/RatingRecordOperation';
 import {useFocusEffect, useNavigation} from '@react-navigation/core';
 import {defaultRecordOperationProps} from './RecordList';
 import Toast from 'react-native-simple-toast';
 import {updateObject} from '../database/database';
+import {formatReadableTime} from '../common/tools';
 
 export type Props = {
   route: RouteProp<{params: {recordId: string}}, 'params'>;
@@ -85,6 +91,7 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
     if (record?.type === RATING_RECORD_TYPE.value) {
       valueComponent = (
         <RatingRecordOperation
+          id={record._id.toHexString()}
           onComplete={defaultRecordOperationProps.onComplete}
           readonly={true}
           value={item.value}
@@ -92,6 +99,18 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
           imageSize={25}
         />
       );
+    } else if (record?.type === TIMING_RECORD_TYPE.value) {
+      const value = formatReadableTime(item.value);
+      valueComponent = <Text style={styles.recordValueText}>{value}</Text>;
+    } else if (record?.type === COUNTING_RECORD_TYPE.value) {
+      const value = `第${item.value}次记录`;
+      valueComponent = <Text style={styles.recordValueText}>{value}</Text>;
+    } else if (record?.type === INPUTTING_RECORD_TYPE.value) {
+      const value = `记录值为：${item.value}`;
+      valueComponent = <Text style={styles.recordValueText}>{value}</Text>;
+    } else if (record?.type === BOOLEAN_RECORD_TYPE.value) {
+      const value = item.value === 1 ? '是' : '否';
+      valueComponent = <Text style={styles.recordValueText}>{value}</Text>;
     }
     return (
       <View style={styles.recordItemContainer}>

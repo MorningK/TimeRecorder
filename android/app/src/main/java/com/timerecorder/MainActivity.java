@@ -18,7 +18,7 @@ public class MainActivity extends ReactActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        setTransparent();
+//        setTransparent();
     }
 
     private void setTransparent() {

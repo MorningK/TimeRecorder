@@ -1,15 +1,29 @@
-import React from 'react';
+import React, {useEffect, useRef} from 'react';
 import {Text, View, StyleSheet} from 'react-native';
 import {RecordOperationProps} from '../screens/RecordList';
 import {Button, Icon} from 'react-native-elements';
+import {getStorageItem, setStorageItem} from '../storage';
 
-export type Props = {
-  value?: number;
+export type CountingRecordOperationProps = {
+  length: number | undefined;
 } & RecordOperationProps;
 
-const CountingRecordOperation = ({onComplete, value}: Props) => {
+const CountingRecordOperation = ({
+  onComplete,
+  id,
+  length,
+}: CountingRecordOperationProps) => {
+  const last = useRef(0);
+  useEffect(() => {
+    getStorageItem(id).then(value => {
+      last.current = Math.max(value || 0, length || 0);
+    });
+  }, [id]);
   const onConfirm = () => {
-    onComplete && onComplete({value: value ? value + 1 : 1});
+    last.current = last.current + 1;
+    onComplete({value: last.current}).then(async r => {
+      await setStorageItem(id, last.current);
+    });
   };
   return (
     <View style={styles.body}>

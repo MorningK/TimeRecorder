@@ -20,7 +20,7 @@ export const INPUTTING_RECORD_TYPE: RecordType = {
   value: 3,
   description: '用户输入的任意合法数值',
 };
-export const Timing_RECORD_TYPE: RecordType = {
+export const TIMING_RECORD_TYPE: RecordType = {
   name: 'Timing',
   value: 4,
   description: '数值从一点开始到另一点结束',
@@ -35,7 +35,7 @@ export const RecordeTypes: RecordType[] = [
   RATING_RECORD_TYPE,
   COUNTING_RECORD_TYPE,
   INPUTTING_RECORD_TYPE,
-  Timing_RECORD_TYPE,
+  TIMING_RECORD_TYPE,
   BOOLEAN_RECORD_TYPE,
 ];
 

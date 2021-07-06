@@ -1,9 +1,9 @@
-import React, {createRef, useState} from 'react';
+import React, {createRef, useEffect, useRef, useState} from 'react';
 import {
-  LayoutChangeEvent,
   ListRenderItemInfo,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import {RecordType} from '../database/realm';
@@ -13,7 +13,6 @@ import {
   Icon,
   ListItem,
   Tooltip,
-  TooltipProps,
 } from 'react-native-elements';
 import CommonStyles from '../common/CommonStyles';
 import {useNavigation} from '@react-navigation/core';
@@ -35,6 +34,7 @@ const AbstractRecord: React.FC<Props> = ({
   const [showOperation, setShowOperation] = useState(false);
   const [popover, setPopover] = useState(false);
   const tooltipRef = createRef();
+  const windowSize = useWindowDimensions();
   const gotoRecordItemList = () => {
     navigation.navigate('RecordItemList', {recordId: item._id.toHexString()});
   };
@@ -128,7 +128,7 @@ const AbstractRecord: React.FC<Props> = ({
                 : CommonStyles.displayNone,
             ]}>
             <View style={styles.dashedLineContainer}>
-              <DashedLine horiz={true} />
+              <DashedLine length={windowSize.width} horiz={true} />
             </View>
             <View style={styles.operationRecord}>{OperationComponent}</View>
           </View>
@@ -176,6 +176,7 @@ const styles = StyleSheet.create({
   iconContainer: {},
   dashedLineContainer: {
     marginVertical: 12,
+    width: '100%',
   },
   operationRecord: {},
 });

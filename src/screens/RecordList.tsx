@@ -30,7 +30,7 @@ import {
   INPUTTING_RECORD_TYPE,
   RATING_RECORD_TYPE,
   RecordeTypes,
-  Timing_RECORD_TYPE,
+  TIMING_RECORD_TYPE,
 } from '../common/constant';
 import AbstractRecord from '../components/AbstractRecord';
 import RatingRecordOperation from '../components/RatingRecordOperation';
@@ -48,11 +48,13 @@ export type RecordOperationProps = {
     value: number | string;
     step?: number;
   }) => Promise<boolean>;
+  id: string;
 };
 export const defaultRecordOperationProps: RecordOperationProps = {
   onComplete: data => {
     return Promise.resolve(true);
   },
+  id: '2333',
 };
 
 const EmptyElement = () => {
@@ -146,21 +148,45 @@ const RecordList: React.FC<Props> = ({}) => {
     let operationComponent = <EmptyElement />;
     if (record.type === RATING_RECORD_TYPE.value) {
       operationComponent = (
-        <RatingRecordOperation showRating={true} onComplete={onComplete} />
-      );
-    } else if (record.type === COUNTING_RECORD_TYPE.value) {
-      operationComponent = (
-        <CountingRecordOperation
-          value={record.items?.length}
+        <RatingRecordOperation
+          id={record._id.toHexString()}
+          showRating={true}
           onComplete={onComplete}
         />
       );
-    } else if (record.type === Timing_RECORD_TYPE.value) {
-      operationComponent = <TimingRecordOperation onComplete={onComplete} />;
+    } else if (record.type === COUNTING_RECORD_TYPE.value) {
+      let last = 0;
+      if (record.items?.length && record.items.length > 0) {
+        last = record.items[record.items.length - 1].value;
+      }
+      operationComponent = (
+        <CountingRecordOperation
+          id={record._id.toHexString()}
+          onComplete={onComplete}
+          length={last}
+        />
+      );
+    } else if (record.type === TIMING_RECORD_TYPE.value) {
+      operationComponent = (
+        <TimingRecordOperation
+          id={record._id.toHexString()}
+          onComplete={onComplete}
+        />
+      );
     } else if (record.type === INPUTTING_RECORD_TYPE.value) {
-      operationComponent = <InputtingRecordOperation onComplete={onComplete} />;
+      operationComponent = (
+        <InputtingRecordOperation
+          id={record._id.toHexString()}
+          onComplete={onComplete}
+        />
+      );
     } else if (record.type === BOOLEAN_RECORD_TYPE.value) {
-      operationComponent = <BooleanRecordOperation onComplete={onComplete} />;
+      operationComponent = (
+        <BooleanRecordOperation
+          id={record._id.toHexString()}
+          onComplete={onComplete}
+        />
+      );
     }
     return (
       <View style={styles.renderItem}>

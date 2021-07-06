@@ -65,6 +65,23 @@ const RecordChart: React.FC<Props> = ({route}: Props) => {
       return `${p.y} # ${time}`;
     },
   };
+  const maxY = useMemo(() => {
+    if (data && data.length > 0) {
+      const y = data.reduce((previousValue, currentValue) => {
+        return previousValue.y > currentValue.y ? previousValue : currentValue;
+      }, data[0]);
+      return y.y;
+    } else {
+      return 1;
+    }
+  }, [data]);
+  const yTickValues = useMemo(() => {
+    const result = new Set<number>();
+    for (let i = 0; i < data.length; i++) {
+      result.add(data[i].y);
+    }
+    return Array.from(result);
+  }, [data]);
   if (data.length <= 0) {
     return <ActivityIndicator />;
   }
@@ -73,15 +90,18 @@ const RecordChart: React.FC<Props> = ({route}: Props) => {
       <Chart
         style={styles.container}
         data={data}
-        yDomain={{min: 0, max: 1}}
+        yDomain={{min: 0, max: maxY}}
         xDomain={{min: 0, max: data.length}}
         padding={contentInset}
         viewport={{
-          size: {width: Math.min(10, data.length), height: 1},
+          size: {
+            width: Math.min(10, data.length),
+            height: Math.max(maxY, 1),
+          },
           initialOrigin: {x: 0, y: 0},
         }}>
         <VerticalAxis
-          tickCount={11}
+          tickValues={yTickValues}
           theme={{labels: {formatter: v => v.toFixed(2)}}}
         />
         <HorizontalAxis tickValues={data.map(p => p.x)} />

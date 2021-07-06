@@ -1,17 +1,31 @@
-import React, {useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Text, View, StyleSheet} from 'react-native';
 import {RecordOperationProps} from '../screens/RecordList';
 import {Icon} from 'react-native-elements';
 import Toast from 'react-native-simple-toast';
+import {getStorageItem, removeStorageItem, setStorageItem} from '../storage';
 
 export type TimingRecordOperationProps = {} & RecordOperationProps;
 
-const TimingRecordOperation = ({onComplete}: TimingRecordOperationProps) => {
+const TimingRecordOperation = ({
+  onComplete,
+  id,
+}: TimingRecordOperationProps) => {
   const [step, setStep] = useState(1);
   const [startTime, setStartTime] = useState(0);
-  const onStart = () => {
+  useEffect(() => {
+    getStorageItem(id).then(value => {
+      if (value) {
+        setStartTime(value);
+        setStep(2);
+      }
+    });
+  }, [id]);
+  const onStart = async () => {
     setStep(2);
-    setStartTime(new Date().getTime());
+    const time = new Date().getTime();
+    setStartTime(time);
+    await setStorageItem(id, time);
     Toast.show('记录开始时间');
   };
   const onEnd = () => {
@@ -19,7 +33,8 @@ const TimingRecordOperation = ({onComplete}: TimingRecordOperationProps) => {
       Toast.show('记录结束时间');
       onComplete({
         value: new Date().getTime() - startTime,
-      }).then(() => {
+      }).then(async () => {
+        await removeStorageItem(id);
         setStartTime(0);
         setStep(1);
       });

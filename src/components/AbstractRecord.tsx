@@ -49,92 +49,68 @@ const AbstractRecord: React.FC<Props> = ({
     }
   };
   return (
-    <Tooltip
-      ref={tooltipRef}
-      containerStyle={styles.tooltip}
-      backgroundColor={'#222222'}
-      height={showOperation ? 100 : 50}
-      width={120}
-      toggleAction={'onLongPress' as 'onPress'}
-      withOverlay={false}
-      skipAndroidStatusBar={false}
-      onOpen={() => setPopover(true)}
-      onClose={() => setPopover(false)}
-      popover={
-        <ButtonGroup
-          onPress={onChoose}
-          containerStyle={styles.bgContainer}
-          buttonStyle={styles.bgBtn}
-          textStyle={styles.bgText}
-          buttons={['删除', '取消']}
-        />
-      }>
-      <ListItem
-        // onLayout={onLayout}
-        containerStyle={[
-          styles.container,
-          {backgroundColor: popover ? '#aaaaaa' : '#ffffff'},
-          {height: showOperation ? 100 : 50},
-        ]}
-        bottomDivider>
-        <View style={styles.displayContainer}>
-          <View style={styles.indexContainer}>
-            <Text style={styles.indexText}>{index + 1}</Text>
-          </View>
-          <View style={styles.recordNameContainer}>
-            <Text style={styles.recordNameText}>{item.name}</Text>
-          </View>
-          <View style={styles.operationIconContainer}>
-            <View
-              style={[
-                showOperation
-                  ? CommonStyles.displayFlex
-                  : CommonStyles.displayNone,
-                styles.iconContainer,
-              ]}>
-              <Icon
-                name="expand-less"
-                type="material"
-                onPress={() => setShowOperation(false)}
-              />
-            </View>
-            <View
-              style={[
-                showOperation
-                  ? CommonStyles.displayNone
-                  : CommonStyles.displayFlex,
-                styles.iconContainer,
-              ]}>
-              <Icon
-                name="expand-more"
-                type="material"
-                onPress={() => setShowOperation(true)}
-              />
-            </View>
-          </View>
-          <View style={styles.detailIconContainer}>
-            <Icon
-              name="chevron-right"
-              type="material"
-              onPress={gotoRecordItemList}
-            />
-          </View>
+    <ListItem
+      // onLayout={onLayout}
+      containerStyle={[
+        styles.container,
+        {backgroundColor: popover ? '#aaaaaa' : '#ffffff'},
+      ]}
+      bottomDivider>
+      <View style={styles.displayContainer}>
+        <View style={styles.indexContainer}>
+          <Text style={styles.indexText}>{index + 1}</Text>
         </View>
-        <View style={styles.operationContainer}>
+        <View style={styles.recordNameContainer}>
+          <Text style={styles.recordNameText}>{item.name}</Text>
+        </View>
+        <View style={styles.operationIconContainer}>
           <View
             style={[
               showOperation
                 ? CommonStyles.displayFlex
                 : CommonStyles.displayNone,
+              styles.iconContainer,
             ]}>
-            <View style={styles.dashedLineContainer}>
-              <DashedLine length={windowSize.width} horiz={true} />
-            </View>
-            <View style={styles.operationRecord}>{OperationComponent}</View>
+            <Icon
+              name="expand-less"
+              type="material"
+              onPress={() => setShowOperation(false)}
+            />
+          </View>
+          <View
+            style={[
+              showOperation
+                ? CommonStyles.displayNone
+                : CommonStyles.displayFlex,
+              styles.iconContainer,
+            ]}>
+            <Icon
+              name="expand-more"
+              type="material"
+              onPress={() => setShowOperation(true)}
+            />
           </View>
         </View>
-      </ListItem>
-    </Tooltip>
+        <View style={styles.detailIconContainer}>
+          <Icon
+            name="chevron-right"
+            type="material"
+            onPress={gotoRecordItemList}
+          />
+        </View>
+      </View>
+      <View style={styles.operationContainer}>
+        <View
+          style={[
+            showOperation ? CommonStyles.displayFlex : CommonStyles.displayNone,
+          ]}>
+          <View style={styles.dashedLineContainer}>
+            <DashedLine length={windowSize.width} horiz={true} />
+          </View>
+          <View style={styles.operationRecord}>{OperationComponent}</View>
+        </View>
+      </View>
+    </ListItem>
   );
 };
 

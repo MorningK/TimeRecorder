@@ -62,7 +62,7 @@ const RecordChart: React.FC<Props> = ({route}: Props) => {
     },
     formatter: (p: ChartDataPoint) => {
       const time = moment(p.meta.create_time).format('YYYY-MM-DD HH:mm:ss.SSS');
-      return `${p.y} # ${time}`;
+      return `${p.y}@${time}`;
     },
   };
   const maxY = useMemo(() => {

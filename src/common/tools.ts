@@ -1,4 +1,8 @@
-import {findNodeHandle, MeasureOnSuccessCallback, UIManager} from 'react-native';
+import {
+  findNodeHandle,
+  MeasureOnSuccessCallback,
+  UIManager,
+} from 'react-native';
 import * as React from 'react';
 
 export const getLayout = (

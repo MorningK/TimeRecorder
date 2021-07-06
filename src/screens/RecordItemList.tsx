@@ -15,7 +15,8 @@ import moment from 'moment';
 import {Icon, Input, ListItem} from 'react-native-elements';
 import {
   BOOLEAN_RECORD_TYPE,
-  COUNTING_RECORD_TYPE, INPUTTING_RECORD_TYPE,
+  COUNTING_RECORD_TYPE,
+  INPUTTING_RECORD_TYPE,
   RATING_RECORD_TYPE,
   TIMING_RECORD_TYPE,
 } from '../common/constant';

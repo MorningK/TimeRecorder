@@ -29,10 +29,10 @@ export type Props = {
   route: RouteProp<{params: {recordId: string}}, 'params'>;
 };
 const contentInset = {
-  top: 50,
-  bottom: 50,
-  left: 100,
-  right: 100,
+  top: 20,
+  bottom: 20,
+  left: 50,
+  right: 50,
 };
 
 const RecordChart: React.FC<Props> = ({route}: Props) => {

@@ -13,7 +13,7 @@ const count = 10;
 
 const RatingRecordOperation: React.FC<Props> = ({
   onComplete,
-  readonly,
+  readonly = false,
   value,
   showRating = false,
   imageSize = 25,

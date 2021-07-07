@@ -1,4 +1,4 @@
-import React, {createRef, useCallback, useEffect, useState} from 'react';
+import React, {createRef, useCallback, useEffect, useRef, useState} from 'react';
 import {StyleSheet, Text, View, FlatList, TextInput} from 'react-native';
 import {RouteProp} from '@react-navigation/native';
 import logger from '../log';
@@ -12,7 +12,7 @@ import {
 import {ObjectId} from 'bson';
 import Realm from 'realm';
 import moment from 'moment';
-import {Icon, Input, ListItem} from 'react-native-elements';
+import {CheckBox, Icon, Input, ListItem} from 'react-native-elements';
 import {
   BOOLEAN_RECORD_TYPE,
   COUNTING_RECORD_TYPE,
@@ -26,10 +26,19 @@ import {defaultRecordOperationProps} from './RecordList';
 import Toast from 'react-native-simple-toast';
 import {updateObject} from '../database/database';
 import {formatReadableTime} from '../common/tools';
+import {
+  HeaderButtons,
+  HeaderButton,
+  Item,
+} from 'react-navigation-header-buttons';
+import CommonStyles from '../common/CommonStyles';
 
 export type Props = {
   route: RouteProp<{params: {recordId: string}}, 'params'>;
 };
+const MaterialHeaderButton = (props: any) => (
+  <HeaderButton {...props} IconComponent={Icon} iconSize={23} color="black" />
+);
 
 const RecordItemList: React.FC<Props> = ({route}: Props) => {
   const recordId = route.params.recordId;
@@ -38,6 +47,8 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
   const navigation = useNavigation();
   const [editable, setEditable] = useState(false);
   const [name, setName] = useState('');
+  const [selection, setSelection] = useState(false);
+  const [selectedRecords, setSelectedRecords] = useState(new Set<string>());
   const inputRef = createRef<TextInput>();
   const record = useRecord(database, recordId);
   useEffect(() => {
@@ -52,6 +63,74 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
   const onValueChange = (value: string) => {
     setName(value);
   };
+  const onRecordSelection = (itemId: string) => {
+    if (selectedRecords.size === 0) {
+      setSelection(true);
+      setSelectedRecords(state => {
+        const result = new Set<string>(state);
+        result.add(itemId);
+        return result;
+      });
+    } else if (selectedRecords.has(itemId)) {
+      setSelectedRecords(state => {
+        const result = new Set<string>(state);
+        result.delete(itemId);
+        return result;
+      });
+    } else {
+      setSelectedRecords(state => {
+        const result = new Set<string>(state);
+        result.add(itemId);
+        return result;
+      });
+    }
+  };
+  const onSelectionChange = (value: boolean, itemId: string) => {
+    setSelection(value);
+    if (selectedRecords.size === 0) {
+      setSelection(true);
+      setSelectedRecords(state => {
+        const result = new Set<string>(state);
+        result.add(itemId);
+        return result;
+      });
+    }
+  };
+  useEffect(() => {
+    const onLeftPress = () => {
+      if (selection) {
+        setSelection(false);
+      } else {
+        navigation.goBack();
+      }
+    };
+    const onRightPress = () => {
+      if (record?.items && record.items.length > 0) {
+        const result = new Set<string>();
+        for (let i = 0; i < record.items.length; i++) {
+          result.add(record.items[i]._id.toHexString());
+        }
+        setSelectedRecords(result);
+      }
+    };
+    navigation.setOptions({
+      headerLeft: () => (
+        <HeaderButtons left HeaderButtonComponent={MaterialHeaderButton}>
+          <Item
+            title="取消"
+            iconName={selection ? undefined : 'arrow-back'}
+            onPress={onLeftPress}
+          />
+        </HeaderButtons>
+      ),
+      headerRight: () =>
+        selection ? (
+          <HeaderButtons HeaderButtonComponent={MaterialHeaderButton}>
+            <Item title="全选" onPress={onRightPress} />
+          </HeaderButtons>
+        ) : null,
+    });
+  }, [navigation, record?.items, selection]);
   const onSubmit = () => {
     console.log('new name is', name);
     if (name === record?.name) {
@@ -119,7 +198,10 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
     }
     return (
       <View style={styles.recordItemContainer}>
-        <ListItem bottomDivider containerStyle={styles.listItemContainer}>
+        <ListItem
+          bottomDivider
+          containerStyle={styles.listItemContainer}
+          onLongPress={() => onSelectionChange(true, item._id.toHexString())}>
           <View>
             <View style={styles.recordItemContentContainer}>
               <View style={styles.recordIndexContainer}>
@@ -131,6 +213,19 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
               <Text style={styles.recordCreateTimeText}>
                 {moment(item.create_time).format('YYYY-MM-DD HH:mm:ss')}
               </Text>
+            </View>
+          </View>
+          <View>
+            <View
+              style={[
+                selection ? CommonStyles.displayFlex : CommonStyles.displayNone,
+              ]}>
+              <CheckBox
+                checkedIcon={<Icon name="check-circle" color={'green'} />}
+                uncheckedIcon={<Icon name="check-circle-outline" />}
+                checked={selectedRecords.has(item._id.toHexString())}
+                onPress={() => onRecordSelection(item._id.toHexString())}
+              />
             </View>
           </View>
         </ListItem>
@@ -243,7 +338,12 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   recordItemContainer: {},
-  listItemContainer: {},
+  listItemContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   recordItemContentContainer: {
     flexDirection: 'row',
     alignContent: 'center',

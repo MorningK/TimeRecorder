@@ -38,6 +38,7 @@
     "react-native-unimodules": "^0.13.3",
     "react-native-vector-icons": "^8.1.0",
     "react-native-webview": "^11.4.5",
+    "react-navigation-header-buttons": "^7.0.1",
     "realm": "^10.4.1"
   },
   "devDependencies": {

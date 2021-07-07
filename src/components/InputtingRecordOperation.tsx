@@ -40,6 +40,7 @@ const InputtingRecordOperation = ({
         keyboardType={'numeric'}
         onChangeText={onValueChange}
         leftIcon={<Icon name={'keyboard'} />}
+        leftIconContainerStyle={styles.leftIconContainer}
         rightIcon={<Icon name={'done'} onPress={onSubmit} />}
       />
     </View>
@@ -52,6 +53,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
+  },
+  leftIconContainer: {
+    marginRight: 6,
   },
 });
 

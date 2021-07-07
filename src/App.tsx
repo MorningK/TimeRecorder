@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler';
 import 'react-native-get-random-values';
 import React from 'react';
-import {StyleSheet} from 'react-native';
+import {StatusBar, StyleSheet} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {ThemeProvider} from 'react-native-elements';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
@@ -22,6 +22,12 @@ const App: React.FC<Props> = ({}) => {
   return (
     <ThemeProvider useDark={colorScheme === 'dark'}>
       <SafeAreaProvider>
+        <StatusBar
+          hidden={false}
+          translucent={true}
+          barStyle="dark-content"
+          backgroundColor="transparent"
+        />
         <NavigationContainer>
           <Stack.Navigator initialRouteName="RecordList">
             <Stack.Screen name="Index" component={Index} />

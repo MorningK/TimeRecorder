@@ -61,7 +61,28 @@ const AbstractRecord: React.FC<Props> = ({
           <Text style={styles.indexText}>{index + 1}</Text>
         </View>
         <View style={styles.recordNameContainer}>
-          <Text style={styles.recordNameText}>{item.name}</Text>
+          <Tooltip
+            ref={tooltipRef}
+            containerStyle={styles.tooltip}
+            backgroundColor={'#222222'}
+            height={50}
+            width={120}
+            toggleAction={'onLongPress' as 'onPress'}
+            withOverlay={false}
+            skipAndroidStatusBar={false}
+            onOpen={() => setPopover(true)}
+            onClose={() => setPopover(false)}
+            popover={
+              <ButtonGroup
+                onPress={onChoose}
+                containerStyle={styles.bgContainer}
+                buttonStyle={styles.bgBtn}
+                textStyle={styles.bgText}
+                buttons={['删除', '取消']}
+              />
+            }>
+            <Text style={styles.recordNameText}>{item.name}</Text>
+          </Tooltip>
         </View>
         <View style={styles.operationIconContainer}>
           <View
@@ -122,6 +143,7 @@ const styles = StyleSheet.create({
     alignContent: 'flex-start',
   },
   tooltip: {
+    flex: 7,
     padding: 0,
   },
   bgContainer: {height: 30, borderWidth: 0},

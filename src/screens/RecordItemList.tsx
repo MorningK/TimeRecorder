@@ -110,8 +110,12 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
       const value = `记录值为：${item.value}`;
       valueComponent = <Text style={styles.recordValueText}>{value}</Text>;
     } else if (record?.type === BOOLEAN_RECORD_TYPE.value) {
-      const value = item.value === 1 ? '是' : '否';
-      valueComponent = <Text style={styles.recordValueText}>{value}</Text>;
+      valueComponent =
+        item.value === 1 ? (
+          <Icon name={'thumb-up-alt'} />
+        ) : (
+          <Icon name={'thumb-down-alt'} />
+        );
     }
     return (
       <View style={styles.recordItemContainer}>

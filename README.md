@@ -13,10 +13,10 @@ An app to record daily life
 ## todos
 * ~~modify record name~~
 * ~~delete record~~
-* delete record items
+* ~~delete record items~~
 * search record
 * search record items
-* data chart
+* ~~data chart~~
 * UI
 ## 首页
 ## 添加记录项

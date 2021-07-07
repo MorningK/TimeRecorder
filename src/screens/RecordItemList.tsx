@@ -1,4 +1,10 @@
-import React, {createRef, useCallback, useEffect, useRef, useState} from 'react';
+import React, {
+  createRef,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import {StyleSheet, Text, View, FlatList, TextInput} from 'react-native';
 import {RouteProp} from '@react-navigation/native';
 import logger from '../log';
@@ -32,6 +38,7 @@ import {
   Item,
 } from 'react-navigation-header-buttons';
 import CommonStyles from '../common/CommonStyles';
+import BottomDeleteSheet from "../components/BottomDeleteSheet";
 
 export type Props = {
   route: RouteProp<{params: {recordId: string}}, 'params'>;
@@ -65,7 +72,7 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
   };
   const onRecordSelection = (itemId: string) => {
     if (selectedRecords.size === 0) {
-      setSelection(true);
+      onSelectionChange(true);
       setSelectedRecords(state => {
         const result = new Set<string>(state);
         result.add(itemId);
@@ -85,21 +92,23 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
       });
     }
   };
-  const onSelectionChange = (value: boolean, itemId: string) => {
+  const onSelectionChange = (value: boolean, itemId?: string) => {
     setSelection(value);
-    if (selectedRecords.size === 0) {
-      setSelection(true);
+    if (value && selectedRecords.size === 0 && itemId) {
       setSelectedRecords(state => {
         const result = new Set<string>(state);
         result.add(itemId);
         return result;
       });
     }
+    if (!value) {
+      setSelectedRecords(new Set<string>());
+    }
   };
   useEffect(() => {
     const onLeftPress = () => {
       if (selection) {
-        setSelection(false);
+        onSelectionChange(false);
       } else {
         navigation.goBack();
       }
@@ -107,8 +116,10 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
     const onRightPress = () => {
       if (record?.items && record.items.length > 0) {
         const result = new Set<string>();
-        for (let i = 0; i < record.items.length; i++) {
-          result.add(record.items[i]._id.toHexString());
+        if (selectedRecords.size < record.items.length) {
+          for (let i = 0; i < record.items.length; i++) {
+            result.add(record.items[i]._id.toHexString());
+          }
         }
         setSelectedRecords(result);
       }
@@ -126,7 +137,14 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
       headerRight: () =>
         selection ? (
           <HeaderButtons HeaderButtonComponent={MaterialHeaderButton}>
-            <Item title="全选" onPress={onRightPress} />
+            <Item
+              title={
+                selectedRecords.size === record?.items?.length
+                  ? '取消全选'
+                  : '全选'
+              }
+              onPress={onRightPress}
+            />
           </HeaderButtons>
         ) : null,
     });
@@ -162,6 +180,26 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
     } else {
       Toast.show('更新失败');
     }
+  };
+  const onDelete = async () => {
+    console.log('onDelete', selectedRecords);
+    if (record) {
+      await updateObject<RecordType>(
+        database,
+        Record.schema.name,
+        record._id,
+        origin => {
+          if (origin.items) {
+            const items = origin.items?.filter(val => {
+              return !selectedRecords.has(val._id.toHexString());
+            });
+            origin.items = items;
+          }
+          return origin;
+        },
+      );
+    }
+    onSelectionChange(false);
   };
   const renderItem = (props: {item: RecordItemsType; index: number}) => {
     const {item, index} = props;
@@ -285,6 +323,11 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
         data={record?.items}
         renderItem={renderItem}
         keyExtractor={item => item._id.toHexString()}
+      />
+      <BottomDeleteSheet
+        visible={selection}
+        onDelete={onDelete}
+        onClose={() => onSelectionChange(false)}
       />
     </View>
   );

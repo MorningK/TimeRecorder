@@ -38,7 +38,7 @@ import {
   Item,
 } from 'react-navigation-header-buttons';
 import CommonStyles from '../common/CommonStyles';
-import BottomDeleteSheet from "../components/BottomDeleteSheet";
+import BottomDeleteSheet from '../components/BottomDeleteSheet';
 
 export type Props = {
   route: RouteProp<{params: {recordId: string}}, 'params'>;

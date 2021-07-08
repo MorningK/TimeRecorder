@@ -17,6 +17,27 @@ export const closeDatabase = (db: DatabaseType) => {
   db && db.close();
 };
 
+export const queryObject = <T>(
+  database: DatabaseType,
+  objectName: string,
+  filter?: string,
+  order?: string,
+  reverse?: boolean,
+) => {
+  if (database) {
+    let list = database.objects<T>(objectName);
+    if (filter) {
+      list = list.filtered(filter);
+    }
+    if (order) {
+      list = list.sorted(order, reverse);
+    }
+    return list;
+  } else {
+    return [];
+  }
+};
+
 export const createObject = async <T>(
   database: DatabaseType,
   objectName: string,
@@ -80,4 +101,4 @@ export const deleteObject = async (
 };
 
 export type DatabaseType = Realm | null;
-export type ResultType = Realm.Results<any> | null | Array<any>;
+export type ResultType<T> = Realm.Results<T> | null | Array<T>;

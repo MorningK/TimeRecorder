@@ -1,7 +1,7 @@
 import React from 'react';
 import {Text, View, StyleSheet} from 'react-native';
 import {BottomSheet, Icon, ListItem} from 'react-native-elements';
-import CommonStyles from "../common/CommonStyles";
+import CommonStyles from '../common/CommonStyles';
 
 export type BottomDeleteSheetProps = {
   visible: boolean;

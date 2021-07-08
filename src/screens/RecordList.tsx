@@ -1,7 +1,15 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {
+  createRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   FlatList,
   ListRenderItemInfo,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -18,11 +26,12 @@ import {useNavigation, useFocusEffect} from '@react-navigation/core';
 import {
   createObject,
   deleteObject,
+  queryObject,
   ResultType,
   updateObject,
 } from '../database/database';
 import logger from '../log';
-import {FAB, Icon, ListItem} from 'react-native-elements';
+import {CheckBox, FAB, Icon, ListItem, SearchBar} from 'react-native-elements';
 import {
   BOOLEAN_RECORD_TYPE,
   COUNTING_RECORD_TYPE,
@@ -63,20 +72,64 @@ const EmptyElement = () => {
 
 const RecordList: React.FC<Props> = ({}) => {
   const navigation = useNavigation();
-  const [list, setList] = useState([] as ResultType);
+  const [list, setList] = useState([] as ResultType<RecordType>);
+  const [searching, setSearching] = useState(false);
+  const [typeSelection, setTypeSelection] = useState(new Set<number>());
+  const [nameFilter, setNameFilter] = useState('');
+  const searchTimer = useRef<NodeJS.Timeout>();
+  const queryFilter = useMemo(() => {
+    const nameQuery = `name contains '${nameFilter}'`;
+    const typeQuery = Array.from(typeSelection)
+      .map(t => `type == ${t}`)
+      .join(' OR ');
+    if (nameFilter.length > 0 && typeSelection.size > 0) {
+      return `${nameQuery} && (${typeQuery})`;
+    } else if (nameFilter.length > 0) {
+      return nameQuery;
+    } else if (typeSelection.size > 0) {
+      return typeQuery;
+    } else {
+      return undefined;
+    }
+  }, [nameFilter, typeSelection]);
   const database = useDatabase();
   const getRecords = useCallback(() => {
     if (database != null && !database.isClosed) {
-      const records = database.objects<RecordType>(Record.schema.name);
+      console.log('queryFilter', queryFilter);
+      const records = queryObject<RecordType>(
+        database,
+        Record.schema.name,
+        queryFilter,
+      );
       logger.log('get records', records.length);
       setList(records);
+      setSearching(false);
     } else {
       setList([]);
     }
-  }, [database]);
+  }, [database, queryFilter]);
   useFocusEffect(getRecords);
   const gotoAddRecord = () => {
     navigation.navigate('AddRecord');
+  };
+  const onSearchName = (value: string) => {
+    setSearching(true);
+    if (searchTimer.current) {
+      clearTimeout(searchTimer.current);
+    }
+    searchTimer.current = setTimeout(() => {
+      setNameFilter(value);
+      searchTimer.current = undefined;
+    }, 500);
+  };
+  const onTypeSelection = (value: number) => {
+    const result = new Set(typeSelection);
+    if (result.has(value)) {
+      result.delete(value);
+    } else {
+      result.add(value);
+    }
+    setTypeSelection(result);
   };
   const renderItem = (props: ListRenderItemInfo<RecordType>) => {
     const {item: record} = props;
@@ -200,6 +253,30 @@ const RecordList: React.FC<Props> = ({}) => {
   };
   return (
     <View style={styles.container}>
+      <SearchBar
+        platform={'default'}
+        lightTheme={true}
+        placeholder={'输入记录名称'}
+        onChangeText={onSearchName}
+        showLoading={searching}
+      />
+      <View
+        style={styles.typeContainer}
+        horizontal={true}
+        contentContainerStyle={styles.typeSelectionContainer}>
+        {RecordeTypes.map(recordType => (
+          <View key={recordType.value}>
+            <CheckBox
+              containerStyle={styles.checkboxContainer}
+              checkedIcon={<Icon name="check-circle" color={'green'} />}
+              uncheckedIcon={<Icon name="check-circle-outline" />}
+              title={recordType.name}
+              checked={typeSelection.has(recordType.value)}
+              onPress={() => onTypeSelection(recordType.value)}
+            />
+          </View>
+        ))}
+      </View>
       <FlatList
         data={list}
         renderItem={renderItem}
@@ -223,8 +300,29 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  typeContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    width: '100%',
+    height: 60,
+    padding: 0,
+  },
+  typeSelectionContainer: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 60,
+    padding: 0,
+  },
   renderItem: {
     width: '100%',
+  },
+  checkboxContainer: {
+    paddingHorizontal: 0,
+    marginHorizontal: 0,
   },
   addContainer: {},
   addBtn: {

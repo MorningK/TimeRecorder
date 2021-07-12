@@ -76,9 +76,6 @@ export const Schema = [Record, RecordItems];
 
 export const SchemaVersion = 2;
 
-export const databaseStoragePath =
-  Platform.OS === 'android' && Platform.Version >= 26
-    ? Realm.defaultPath
-    : RNFS.ExternalDirectoryPath + '/record.realm';
+export const databaseStoragePath = Realm.defaultPath;
 console.log('Realm.defaultPath is', Realm.defaultPath);
 console.log('databaseStoragePath is', databaseStoragePath);

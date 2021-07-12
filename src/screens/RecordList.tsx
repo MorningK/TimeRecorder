@@ -49,6 +49,7 @@ import TimingRecordOperation from '../components/TimingRecordOperation';
 import Toast from 'react-native-simple-toast';
 import InputtingRecordOperation from '../components/InputtingRecordOperation';
 import BooleanRecordOperation from '../components/BooleanRecordOperation';
+import RecordTypeSelection from '../components/RecordTypeSelection';
 
 export type Props = EmptyObject;
 
@@ -72,11 +73,11 @@ const EmptyElement = () => {
 
 const RecordList: React.FC<Props> = ({}) => {
   const navigation = useNavigation();
+  const database = useDatabase();
   const [list, setList] = useState([] as ResultType<RecordType>);
   const [searching, setSearching] = useState(false);
   const [typeSelection, setTypeSelection] = useState(new Set<number>());
   const [nameFilter, setNameFilter] = useState('');
-  const searchTimer = useRef<NodeJS.Timeout>();
   const queryFilter = useMemo(() => {
     const nameQuery = `name contains '${nameFilter}'`;
     const typeQuery = Array.from(typeSelection)
@@ -92,7 +93,6 @@ const RecordList: React.FC<Props> = ({}) => {
       return undefined;
     }
   }, [nameFilter, typeSelection]);
-  const database = useDatabase();
   const getRecords = useCallback(() => {
     if (database != null && !database.isClosed) {
       console.log('queryFilter', queryFilter);
@@ -114,13 +114,7 @@ const RecordList: React.FC<Props> = ({}) => {
   };
   const onSearchName = (value: string) => {
     setSearching(true);
-    if (searchTimer.current) {
-      clearTimeout(searchTimer.current);
-    }
-    searchTimer.current = setTimeout(() => {
-      setNameFilter(value);
-      searchTimer.current = undefined;
-    }, 500);
+    setNameFilter(value);
   };
   const onTypeSelection = (value: number) => {
     const result = new Set(typeSelection);
@@ -254,30 +248,19 @@ const RecordList: React.FC<Props> = ({}) => {
   return (
     <View style={styles.container}>
       <SearchBar
-        platform={'default'}
-        lightTheme={true}
+        platform={'android'}
+        inputContainerStyle={styles.searchBarInputContainer}
         placeholder={'输入记录名称'}
         onChangeText={onSearchName}
+        value={nameFilter}
         showLoading={searching}
       />
-      <View
-        style={styles.typeContainer}
-        horizontal={true}
-        contentContainerStyle={styles.typeSelectionContainer}>
-        {RecordeTypes.map(recordType => (
-          <View key={recordType.value}>
-            <CheckBox
-              containerStyle={styles.checkboxContainer}
-              checkedIcon={<Icon name="check-circle" color={'green'} />}
-              uncheckedIcon={<Icon name="check-circle-outline" />}
-              title={recordType.name}
-              checked={typeSelection.has(recordType.value)}
-              onPress={() => onTypeSelection(recordType.value)}
-            />
-          </View>
-        ))}
-      </View>
+      <RecordTypeSelection
+        onTypeSelection={onTypeSelection}
+        typeSelection={typeSelection}
+      />
       <FlatList
+        style={styles.listContainer}
         data={list}
         renderItem={renderItem}
         keyExtractor={item => item._id.toHexString()}
@@ -300,29 +283,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  typeContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    width: '100%',
-    height: 60,
-    padding: 0,
+  searchBarInputContainer: {
+    backgroundColor: '#dddddd',
   },
-  typeSelectionContainer: {
+  listContainer: {
     flex: 1,
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 60,
-    padding: 0,
   },
   renderItem: {
     width: '100%',
-  },
-  checkboxContainer: {
-    paddingHorizontal: 0,
-    marginHorizontal: 0,
   },
   addContainer: {},
   addBtn: {

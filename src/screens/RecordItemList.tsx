@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
     alignContent: 'center',
   },
   recordIndexContainer: {
-    width: 100,
+    width: 60,
     justifyContent: 'center',
     alignContent: 'center',
     textAlign: 'center',

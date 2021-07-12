@@ -95,7 +95,6 @@ const styles = StyleSheet.create({
     width: '80%',
   },
   iconContainer: {
-    width: '20%',
     justifyContent: 'center',
     alignItems: 'center',
   },

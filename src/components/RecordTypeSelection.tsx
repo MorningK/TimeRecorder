@@ -42,7 +42,11 @@ const RecordTypeSelection: React.FC<RecordTypeSelectionProps> = ({
   return (
     <View style={styles.typeContainer}>
       <Text>记录类型：</Text>
-      {RecordeTypes.map((item, index) => renderItem({item, index}))}
+      <ScrollView
+        horizontal={true}
+        contentContainerStyle={styles.contentContainer}>
+        {RecordeTypes.map((item, index) => renderItem({item, index}))}
+      </ScrollView>
     </View>
   );
 };
@@ -58,6 +62,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#33333333',
     overflow: 'scroll',
+  },
+  contentContainer: {
+    alignItems: 'center',
   },
   title: {
     fontSize: 18,

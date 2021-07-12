@@ -16,6 +16,33 @@ import RecordChart from './screens/RecordChart';
 export type Props = EmptyObject;
 
 const Stack = createStackNavigator();
+const screens = [
+  {
+    name: 'Index',
+    component: Index,
+    title: '首页',
+  },
+  {
+    name: 'AddRecord',
+    component: AddRecord,
+    title: '新增记录项',
+  },
+  {
+    name: 'RecordList',
+    component: RecordList,
+    title: '记录项列表',
+  },
+  {
+    name: 'RecordItemList',
+    component: RecordItemList,
+    title: '记录列表',
+  },
+  {
+    name: 'RecordChart',
+    component: RecordChart,
+    title: '记录图表',
+  },
+];
 
 const App: React.FC<Props> = ({}) => {
   const colorScheme = useColorScheme();
@@ -30,11 +57,14 @@ const App: React.FC<Props> = ({}) => {
         />
         <NavigationContainer>
           <Stack.Navigator initialRouteName="RecordList">
-            <Stack.Screen name="Index" component={Index} />
-            <Stack.Screen name="AddRecord" component={AddRecord} />
-            <Stack.Screen name="RecordList" component={RecordList} />
-            <Stack.Screen name="RecordItemList" component={RecordItemList} />
-            <Stack.Screen name="RecordChart" component={RecordChart} />
+            {screens.map(item => (
+              <Stack.Screen
+                key={item.name}
+                name={item.name}
+                component={item.component}
+                options={{title: item.title}}
+              />
+            ))}
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaProvider>

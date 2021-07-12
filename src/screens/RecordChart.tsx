@@ -62,7 +62,7 @@ const RecordChart: React.FC<Props> = ({route}: Props) => {
     },
     formatter: (p: ChartDataPoint) => {
       const time = moment(p.meta.create_time).format('YYYY-MM-DD HH:mm:ss.SSS');
-      return `${p.y}@${time}`;
+      return `${p.y.toFixed(2)}@${time}`;
     },
   };
   const maxY = useMemo(() => {
@@ -117,6 +117,8 @@ const RecordChart: React.FC<Props> = ({route}: Props) => {
         <Line
           tooltipComponent={<Tooltip theme={tooltipTheme} />}
           onTooltipSelect={onTooltipSelect}
+          hideTooltipAfter={2000}
+          hideTooltipOnDragEnd={true}
           smoothing={'cubic-spline'}
           theme={{stroke: {color: '#12449b', width: 2}}}
         />

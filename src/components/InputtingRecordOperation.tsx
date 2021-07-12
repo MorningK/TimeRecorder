@@ -6,11 +6,13 @@ import Toast from 'react-native-simple-toast';
 
 export type InputtingRecordOperationProps = {
   autoClear?: boolean;
+  placeholder?: string;
 } & RecordOperationProps;
 
 const InputtingRecordOperation = ({
   onComplete,
   autoClear = true,
+  placeholder = '请输入合法数值',
 }: InputtingRecordOperationProps) => {
   const [value, setValue] = useState('');
   const inputRef = createRef<TextInput>();
@@ -44,7 +46,7 @@ const InputtingRecordOperation = ({
     <View style={styles.body}>
       <Input
         ref={inputRef}
-        placeholder={'请输入合法数值'}
+        placeholder={placeholder}
         keyboardType={'numeric'}
         onChangeText={onValueChange}
         leftIcon={<Icon name={'keyboard'} />}

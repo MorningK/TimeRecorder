@@ -46,6 +46,7 @@ const ValueRanger: React.FC<ValueRangerProps> = ({
       return (
         <InputtingRecordOperation
           onComplete={onInputChange}
+          placeholder={'请输入要查找的数值'}
           id={'520'}
           autoClear={false}
         />
@@ -66,28 +67,34 @@ const ValueRanger: React.FC<ValueRangerProps> = ({
     };
     return (
       <View style={styles.rangeInputContainer}>
-        <Text>From:</Text>
-        <Input
-          containerStyle={styles.rangeInput}
-          placeholder={'请输入开始值'}
-          value={rangeValue[0]}
-          keyboardType={'numeric'}
-          rightIcon={
-            <Icon name={'clear'} onPress={() => onRangeChange(0, '')} />
-          }
-          onChangeText={value => onRangeChange(0, value)}
-        />
-        <Text>To:</Text>
-        <Input
-          containerStyle={styles.rangeInput}
-          placeholder={'请输入结束值'}
-          value={rangeValue[1]}
-          keyboardType={'numeric'}
-          rightIcon={
-            <Icon name={'clear'} onPress={() => onRangeChange(1, '')} />
-          }
-          onChangeText={value => onRangeChange(1, value)}
-        />
+        <View>
+          <View style={styles.inputContainer}>
+            <Text>From:</Text>
+            <Input
+              containerStyle={styles.rangeInput}
+              placeholder={'请输入开始值'}
+              value={rangeValue[0]}
+              keyboardType={'numeric'}
+              rightIcon={
+                <Icon name={'clear'} onPress={() => onRangeChange(0, '')} />
+              }
+              onChangeText={value => onRangeChange(0, value)}
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Text>To:</Text>
+            <Input
+              containerStyle={styles.rangeInput}
+              placeholder={'请输入结束值'}
+              value={rangeValue[1]}
+              keyboardType={'numeric'}
+              rightIcon={
+                <Icon name={'clear'} onPress={() => onRangeChange(1, '')} />
+              }
+              onChangeText={value => onRangeChange(1, value)}
+            />
+          </View>
+        </View>
         <Icon name={'done'} onPress={onSubmitRange} />
       </View>
     );
@@ -141,9 +148,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
+    paddingHorizontal: 12,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
   },
   rangeInput: {
-    width: '33%',
+    width: '80%',
   },
 });
 

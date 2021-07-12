@@ -39,6 +39,7 @@ import {
 } from 'react-navigation-header-buttons';
 import CommonStyles from '../common/CommonStyles';
 import BottomDeleteSheet from '../components/BottomDeleteSheet';
+import RecordTitle from '../containers/RecordTitle';
 
 export type Props = {
   route: RouteProp<{params: {recordId: string}}, 'params'>;
@@ -52,25 +53,16 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
   logger.log('recordId', recordId);
   const database = useDatabase();
   const navigation = useNavigation();
-  const [editable, setEditable] = useState(false);
-  const [name, setName] = useState('');
   const [selection, setSelection] = useState(false);
   const [selectedRecords, setSelectedRecords] = useState(new Set<string>());
-  const inputRef = createRef<TextInput>();
   const record = useRecord(database, recordId);
-  useEffect(() => {
-    record && setName(record?.name);
-  }, [record]);
   const gotoRecordChart = () => {
     navigation.navigate('RecordChart', {recordId: record?._id.toHexString()});
   };
-  const editRecordName = () => {
-    setEditable(state => !state);
-  };
-  const onValueChange = (value: string) => {
-    setName(value);
-  };
   const onRecordSelection = (itemId: string) => {
+    if (!selection) {
+      return;
+    }
     if (selectedRecords.size === 0) {
       onSelectionChange(true);
       setSelectedRecords(state => {
@@ -92,19 +84,22 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
       });
     }
   };
-  const onSelectionChange = (value: boolean, itemId?: string) => {
-    setSelection(value);
-    if (value && selectedRecords.size === 0 && itemId) {
-      setSelectedRecords(state => {
-        const result = new Set<string>(state);
-        result.add(itemId);
-        return result;
-      });
-    }
-    if (!value) {
-      setSelectedRecords(new Set<string>());
-    }
-  };
+  const onSelectionChange = useCallback(
+    (value: boolean, itemId?: string) => {
+      setSelection(value);
+      if (value && selectedRecords.size === 0 && itemId) {
+        setSelectedRecords(state => {
+          const result = new Set<string>(state);
+          result.add(itemId);
+          return result;
+        });
+      }
+      if (!value) {
+        setSelectedRecords(new Set<string>());
+      }
+    },
+    [selectedRecords.size],
+  );
   useEffect(() => {
     const onLeftPress = () => {
       if (selection) {
@@ -148,37 +143,46 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
           </HeaderButtons>
         ) : null,
     });
-  }, [navigation, record?.items, selection]);
-  const onSubmit = () => {
+  }, [
+    navigation,
+    onSelectionChange,
+    record?.items,
+    selectedRecords.size,
+    selection,
+  ]);
+  const onSubmit = async (name: string) => {
     console.log('new name is', name);
     if (name === record?.name) {
-      setEditable(false);
-      return;
+      return false;
     }
     if (name.length === 0) {
       Toast.show('请输入新的记录名称');
-      return;
+      return true;
     }
     if (record) {
-      updateObject<RecordType>(
-        database,
-        Record.schema.name,
-        record._id,
-        origin => {
-          origin.name = name;
-          return origin;
-        },
-      )
-        .then(value => {
-          setEditable(false);
-          console.log('update name', value);
-          Toast.show('更新成功');
-        })
-        .catch(e => {
-          Toast.show('更新失败');
-        });
+      return new Promise<boolean>((resolve, reject) => {
+        updateObject<RecordType>(
+          database,
+          Record.schema.name,
+          record._id,
+          origin => {
+            origin.name = name;
+            return origin;
+          },
+        )
+          .then(value => {
+            console.log('update name', value);
+            Toast.show('更新成功');
+            resolve(false);
+          })
+          .catch(e => {
+            Toast.show('更新失败');
+            reject(e);
+          });
+      });
     } else {
       Toast.show('更新失败');
+      return true;
     }
   };
   const onDelete = async () => {
@@ -190,10 +194,9 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
         record._id,
         origin => {
           if (origin.items) {
-            const items = origin.items?.filter(val => {
+            origin.items = origin.items?.filter(val => {
               return !selectedRecords.has(val._id.toHexString());
             });
-            origin.items = items;
           }
           return origin;
         },
@@ -239,11 +242,31 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
         <ListItem
           bottomDivider
           containerStyle={styles.listItemContainer}
+          onPress={() => onRecordSelection(item._id.toHexString())}
           onLongPress={() => onSelectionChange(true, item._id.toHexString())}>
           <View>
             <View style={styles.recordItemContentContainer}>
               <View style={styles.recordIndexContainer}>
-                <Text style={styles.recordIndexText}>{index + 1}</Text>
+                <Text
+                  style={[
+                    styles.recordIndexText,
+                    selection
+                      ? CommonStyles.displayNone
+                      : CommonStyles.displayFlex,
+                  ]}>
+                  {index + 1}
+                </Text>
+                <CheckBox
+                  containerStyle={[
+                    selection
+                      ? CommonStyles.displayFlex
+                      : CommonStyles.displayNone,
+                    styles.selectionContainer,
+                  ]}
+                  checkedIcon={<Icon name="check-circle" color={'green'} />}
+                  uncheckedIcon={<Icon name="check-circle-outline" />}
+                  checked={selectedRecords.has(item._id.toHexString())}
+                />
               </View>
               <View style={styles.recordValueContainer}>{valueComponent}</View>
             </View>
@@ -253,71 +276,17 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
               </Text>
             </View>
           </View>
-          <View>
-            <View
-              style={[
-                selection ? CommonStyles.displayFlex : CommonStyles.displayNone,
-              ]}>
-              <CheckBox
-                checkedIcon={<Icon name="check-circle" color={'green'} />}
-                uncheckedIcon={<Icon name="check-circle-outline" />}
-                checked={selectedRecords.has(item._id.toHexString())}
-                onPress={() => onRecordSelection(item._id.toHexString())}
-              />
-            </View>
-          </View>
         </ListItem>
       </View>
     );
   };
   return (
     <View style={styles.container}>
-      <View style={styles.topContainer}>
-        <View style={styles.displayContainer}>
-          <View style={styles.nameContainer}>
-            <Text style={styles.nameText}>记录名称：</Text>
-            {!editable && (
-              <View style={styles.editNameContainer}>
-                <Text style={styles.nameText}>
-                  {record != null && record.name}
-                </Text>
-                <Icon
-                  containerStyle={styles.editIcon}
-                  name={'edit'}
-                  size={24}
-                  onPress={editRecordName}
-                />
-              </View>
-            )}
-          </View>
-          {editable && (
-            <View style={styles.inputContainer}>
-              <Input
-                ref={inputRef}
-                placeholder={'请输入新的记录名称'}
-                onChangeText={onValueChange}
-                defaultValue={record?.name}
-                rightIcon={<Icon name={'done'} onPress={onSubmit} />}
-              />
-            </View>
-          )}
-          <View style={styles.createTimeContainer}>
-            <Text style={styles.createTimeText}>
-              创建时间：
-              {record != null &&
-                moment(record.create_time).format('YYYY-MM-DD HH:mm:ss')}
-            </Text>
-          </View>
-        </View>
-        <View style={styles.iconContainer}>
-          <Icon
-            name="insights"
-            type="material"
-            size={32}
-            onPress={gotoRecordChart}
-          />
-        </View>
-      </View>
+      <RecordTitle
+        onNameSubmit={onSubmit}
+        record={record}
+        onPressChart={gotoRecordChart}
+      />
       <FlatList
         style={styles.listContainer}
         data={record?.items}
@@ -337,46 +306,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  topContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 12,
-  },
-  displayContainer: {
-    width: '80%',
-  },
-  iconContainer: {
-    width: '20%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  nameContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    width: '100%',
-    alignItems: 'center',
-  },
-  editNameContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  nameText: {
-    fontSize: 24,
-  },
-  editIcon: {
-    paddingHorizontal: 12,
-  },
-  inputContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    width: '100%',
-  },
-  createTimeContainer: {
-    width: '100%',
-  },
-  createTimeText: {},
   listContainer: {
     width: '100%',
   },
@@ -392,12 +321,19 @@ const styles = StyleSheet.create({
     alignContent: 'center',
   },
   recordIndexContainer: {
-    width: 50,
+    width: 100,
     justifyContent: 'center',
     alignContent: 'center',
     textAlign: 'center',
   },
-  recordIndexText: {},
+  recordIndexText: {
+    textAlign: 'left',
+  },
+  selectionContainer: {
+    paddingHorizontal: 0,
+    marginHorizontal: 0,
+    borderWidth: 0,
+  },
   recordValueContainer: {
     // flex: 1,
   },

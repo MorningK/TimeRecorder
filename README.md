@@ -14,7 +14,7 @@ An app to record daily life
 * ~~modify record name~~
 * ~~delete record~~
 * ~~delete record items~~
-* search record
+* ~~search record~~
 * search record items
 * ~~data chart~~
 * UI

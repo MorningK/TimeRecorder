@@ -4,10 +4,13 @@ import {RecordOperationProps} from '../screens/RecordList';
 import {Icon, Input} from 'react-native-elements';
 import Toast from 'react-native-simple-toast';
 
-export type InputtingRecordOperationProps = RecordOperationProps;
+export type InputtingRecordOperationProps = {
+  autoClear?: boolean;
+} & RecordOperationProps;
 
 const InputtingRecordOperation = ({
   onComplete,
+  autoClear = true,
 }: InputtingRecordOperationProps) => {
   const [value, setValue] = useState('');
   const inputRef = createRef<TextInput>();
@@ -24,13 +27,18 @@ const InputtingRecordOperation = ({
       onComplete({
         value: floatValue,
       }).then(() => {
-        inputRef.current && inputRef.current.clear();
-        setValue('');
+        if (autoClear) {
+          clear();
+        }
       });
     } catch (e) {
       console.error('parseFloat error', e);
       Toast.show('请输入合法的数值');
     }
+  };
+  const clear = () => {
+    inputRef.current && inputRef.current.clear();
+    setValue('');
   };
   return (
     <View style={styles.body}>
@@ -41,7 +49,12 @@ const InputtingRecordOperation = ({
         onChangeText={onValueChange}
         leftIcon={<Icon name={'keyboard'} />}
         leftIconContainerStyle={styles.leftIconContainer}
-        rightIcon={<Icon name={'done'} onPress={onSubmit} />}
+        rightIcon={
+          <View style={styles.rightIconContainer}>
+            <Icon name={'clear'} onPress={clear} />
+            <Icon name={'done'} onPress={onSubmit} />
+          </View>
+        }
       />
     </View>
   );
@@ -56,6 +69,12 @@ const styles = StyleSheet.create({
   },
   leftIconContainer: {
     marginRight: 6,
+  },
+  rightIconContainer: {
+    flexDirection: 'row',
+    width: 100,
+    justifyContent: 'space-around',
+    alignItems: 'center',
   },
 });
 

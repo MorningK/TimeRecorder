@@ -40,6 +40,7 @@ import {
 import CommonStyles from '../common/CommonStyles';
 import BottomDeleteSheet from '../components/BottomDeleteSheet';
 import RecordTitle from '../containers/RecordTitle';
+import ValueRanger from '../components/ValueRanger';
 
 export type Props = {
   route: RouteProp<{params: {recordId: string}}, 'params'>;
@@ -204,6 +205,9 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
     }
     onSelectionChange(false);
   };
+  const onValueSearch = (value: number| number[]) => {
+    console.log('onValueSearch', value);
+  };
   const renderItem = (props: {item: RecordItemsType; index: number}) => {
     const {item, index} = props;
     let valueComponent = (
@@ -265,6 +269,7 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
                   ]}
                   checkedIcon={<Icon name="check-circle" color={'green'} />}
                   uncheckedIcon={<Icon name="check-circle-outline" />}
+                  onPress={() => onRecordSelection(item._id.toHexString())}
                   checked={selectedRecords.has(item._id.toHexString())}
                 />
               </View>
@@ -286,6 +291,10 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
         onNameSubmit={onSubmit}
         record={record}
         onPressChart={gotoRecordChart}
+      />
+      <ValueRanger
+        recordType={record?.type || -1}
+        onValueChange={onValueSearch}
       />
       <FlatList
         style={styles.listContainer}

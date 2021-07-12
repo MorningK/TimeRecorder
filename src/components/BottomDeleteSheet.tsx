@@ -41,6 +41,7 @@ const BottomDeleteSheet = ({
         visible ? CommonStyles.displayFlex : CommonStyles.displayNone,
       ]}>
       <Icon size={25} name={'delete'} onPress={onDelete} color={'red'} />
+      <Text style={styles.deleteText}>删除</Text>
     </View>
   );
 };
@@ -48,12 +49,16 @@ const BottomDeleteSheet = ({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: 50,
+    padding: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
   listItemContent: {
     justifyContent: 'center',
+  },
+  deleteText: {
+    textAlign: 'center',
+    fontSize: 16,
   },
 });
 

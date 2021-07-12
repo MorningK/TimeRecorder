@@ -52,12 +52,12 @@ import BooleanRecordOperation from '../components/BooleanRecordOperation';
 import RecordTypeSelection from '../components/RecordTypeSelection';
 
 export type Props = EmptyObject;
-
+export type RecordOperationDataType = {
+  value: number | string;
+  step?: number;
+};
 export type RecordOperationProps = {
-  onComplete: (data: {
-    value: number | string;
-    step?: number;
-  }) => Promise<boolean>;
+  onComplete: (data: RecordOperationDataType) => Promise<boolean>;
   id: string;
 };
 export const defaultRecordOperationProps: RecordOperationProps = {

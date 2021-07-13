@@ -8,7 +8,7 @@ import React, {
 import {StyleSheet, Text, View, FlatList, TextInput} from 'react-native';
 import {RouteProp} from '@react-navigation/native';
 import logger from '../log';
-import {useDatabase, useRecord} from '../hooks';
+import {useDatabase, useRecord, useRecordItems} from '../hooks';
 import {
   Record,
   RecordItems,
@@ -41,6 +41,7 @@ import CommonStyles from '../common/CommonStyles';
 import BottomDeleteSheet from '../components/BottomDeleteSheet';
 import RecordTitle from '../containers/RecordTitle';
 import ValueRanger from '../components/ValueRanger';
+import TimeSelection from '../components/TimeSelection';
 
 export type Props = {
   route: RouteProp<{params: {recordId: string}}, 'params'>;
@@ -59,27 +60,13 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
   const [rangeValue, setRangeValue] = useState([] as number[]);
   const [timeRange, setTimeRange] = useState(new Date());
   const record = useRecord(database, recordId);
-  const list = useMemo(() => {
-    let data = record?.items;
-    if (data && data.length > 0) {
-      if (rangeValue.length === 1 && !isNaN(rangeValue[0])) {
-        data = data.filter(item => item.value === rangeValue[0]);
-      } else if (rangeValue.length === 2) {
-        if (!isNaN(rangeValue[0])) {
-          data = data.filter(item => item.value >= rangeValue[0]);
-        }
-        if (!isNaN(rangeValue[1])) {
-          data = data.filter(item => item.value <= rangeValue[1]);
-        }
-      }
-      if (timeRange) {
-        // data = data.filter(item => item.create_time === timeRange);
-      }
-    }
-    return data;
-  }, [rangeValue, timeRange, record?.items]);
+  const list = useRecordItems(record, rangeValue, timeRange);
   const gotoRecordChart = () => {
-    navigation.navigate('RecordChart', {recordId: record?._id.toHexString()});
+    navigation.navigate('RecordChart', {
+      recordId: record?._id.toHexString(),
+      values: rangeValue,
+      times: timeRange.getTime(),
+    });
   };
   const onRecordSelection = (itemId: string) => {
     if (!selection) {
@@ -229,9 +216,7 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
   const onValueSearch = (value: number | number[]) => {
     console.log('onValueSearch', value);
     if (typeof value === 'number') {
-      if (!isNaN(value)) {
-        setRangeValue([value]);
-      }
+      setRangeValue([value]);
     } else {
       setRangeValue(value);
     }
@@ -324,6 +309,7 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
         recordType={record?.type || -1}
         onValueChange={onValueSearch}
       />
+      <TimeSelection />
       <FlatList
         style={styles.listContainer}
         data={list}

@@ -6,7 +6,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import {useDatabase, useRecord} from '../hooks';
+import {useDatabase, useRecord, useRecordItems} from '../hooks';
 import logger from '../log';
 import {RouteProp} from '@react-navigation/native';
 import {Record, RecordItemsType, RecordType} from '../database/realm';
@@ -26,22 +26,24 @@ import {
 } from 'react-native-responsive-linechart';
 
 export type Props = {
-  route: RouteProp<{params: {recordId: string}}, 'params'>;
+  route: RouteProp<{params: {recordId: string; values: number[]; times: number;}}, 'params'>;
 };
 const contentInset = {
-  top: 20,
-  bottom: 20,
-  left: 50,
-  right: 50,
+  top: 48,
+  bottom: 24,
+  left: 48,
+  right: 48,
 };
 
 const RecordChart: React.FC<Props> = ({route}: Props) => {
   const recordId = route.params.recordId;
+  const values = route.params.values;
+  const times = new Date(route.params.times);
   logger.log('recordId', recordId);
   const database = useDatabase();
   const record = useRecord(database, recordId);
+  const items = useRecordItems(record, values, times);
   const data = useMemo(() => {
-    const items = record?.items || [];
     return items.map((item, index) => ({
       meta: {
         _id: item._id.toHexString(),
@@ -51,7 +53,7 @@ const RecordChart: React.FC<Props> = ({route}: Props) => {
       x: index,
       y: item.value,
     }));
-  }, [record]);
+  }, [items]);
   console.log('data', data);
   const onTooltipSelect = (value: ChartDataPoint, index: number) => {
     console.log('onTooltipSelect', value, index);

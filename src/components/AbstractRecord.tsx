@@ -17,6 +17,7 @@ import {
 import CommonStyles from '../common/CommonStyles';
 import {useNavigation} from '@react-navigation/core';
 import DashedLine from './DashedLine';
+import MoreLessIcon from './MoreLessIcon';
 
 export type Props = {
   renderProps: ListRenderItemInfo<RecordType>;
@@ -85,32 +86,10 @@ const AbstractRecord: React.FC<Props> = ({
           </Tooltip>
         </View>
         <View style={styles.operationIconContainer}>
-          <View
-            style={[
-              showOperation
-                ? CommonStyles.displayFlex
-                : CommonStyles.displayNone,
-              styles.iconContainer,
-            ]}>
-            <Icon
-              name="expand-less"
-              type="material"
-              onPress={() => setShowOperation(false)}
-            />
-          </View>
-          <View
-            style={[
-              showOperation
-                ? CommonStyles.displayNone
-                : CommonStyles.displayFlex,
-              styles.iconContainer,
-            ]}>
-            <Icon
-              name="expand-more"
-              type="material"
-              onPress={() => setShowOperation(true)}
-            />
-          </View>
+          <MoreLessIcon
+            expand={showOperation}
+            onExpandChange={setShowOperation}
+          />
         </View>
         <View style={styles.detailIconContainer}>
           <Icon

@@ -7,6 +7,8 @@ import {
   RecordOperationDataType,
   RecordOperationProps,
 } from '../screens/RecordList';
+import MoreLessIcon from './MoreLessIcon';
+import CommonStyles from '../common/CommonStyles';
 
 export type ValueRangerProps = {
   recordType: number;
@@ -14,8 +16,8 @@ export type ValueRangerProps = {
 };
 
 const selectionTypes = [
-  {title: '精确值搜索', value: 1},
-  {title: '范围值搜索', value: 2},
+  {title: '精确值', value: 1},
+  {title: '范围值', value: 2},
 ];
 
 const ValueRanger: React.FC<ValueRangerProps> = ({
@@ -23,6 +25,7 @@ const ValueRanger: React.FC<ValueRangerProps> = ({
   onValueChange,
 }: ValueRangerProps) => {
   const [type, setType] = useState(1);
+  const [showInput, setShowInput] = useState(true);
   const [rangeValue, setRangeValue] = useState(['', '']);
   const onTypeChange = (value: number) => {
     setType(value);
@@ -31,6 +34,7 @@ const ValueRanger: React.FC<ValueRangerProps> = ({
     if (recordType === BOOLEAN_RECORD_TYPE.value) {
       return (
         <View style={styles.booleanContainer}>
+          <Icon name={'thumbs-up-down'} onPress={() => onValueChange(NaN)} />
           <Icon name={'thumb-down-alt'} onPress={() => onValueChange(0)} />
           <Icon name={'thumb-up-alt'} onPress={() => onValueChange(1)} />
         </View>
@@ -104,20 +108,29 @@ const ValueRanger: React.FC<ValueRangerProps> = ({
   }
   return (
     <View style={styles.container}>
-      <View style={styles.typeContainer}>
-        {selectionTypes.map(item => (
-          <CheckBox
-            key={item.value}
-            containerStyle={styles.checkboxContainer}
-            checkedIcon={<Icon name="radio-button-checked" />}
-            uncheckedIcon={<Icon name="radio-button-unchecked" />}
-            title={item.title}
-            checked={type === item.value}
-            onPress={() => onTypeChange(item.value)}
-          />
-        ))}
+      <View style={styles.titleContainer}>
+        <View style={styles.typeContainer}>
+          <Text>取值搜索:</Text>
+          {selectionTypes.map(item => (
+            <CheckBox
+              key={item.value}
+              containerStyle={styles.checkboxContainer}
+              checkedIcon={<Icon name="radio-button-checked" />}
+              uncheckedIcon={<Icon name="radio-button-unchecked" />}
+              title={item.title}
+              checked={type === item.value}
+              onPress={() => onTypeChange(item.value)}
+            />
+          ))}
+        </View>
+        <MoreLessIcon expand={showInput} onExpandChange={setShowInput} />
       </View>
-      <View>{input}</View>
+      <View
+        style={[
+          showInput ? CommonStyles.displayFlex : CommonStyles.displayNone,
+        ]}>
+        {input}
+      </View>
     </View>
   );
 };
@@ -126,6 +139,16 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
     width: '100%',
+    borderBottomWidth: 1,
+    borderBottomColor: '#33333333',
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingLeft: 12,
+    paddingRight: 24,
+    backgroundColor: 'white',
   },
   typeContainer: {
     flexDirection: 'row',

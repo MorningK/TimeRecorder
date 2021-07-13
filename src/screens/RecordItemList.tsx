@@ -1,7 +1,7 @@
 import React, {
   createRef,
   useCallback,
-  useEffect,
+  useEffect, useMemo,
   useRef,
   useState,
 } from 'react';
@@ -56,7 +56,28 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
   const navigation = useNavigation();
   const [selection, setSelection] = useState(false);
   const [selectedRecords, setSelectedRecords] = useState(new Set<string>());
+  const [rangeValue, setRangeValue] = useState([] as number[]);
+  const [timeRange, setTimeRange] = useState(new Date());
   const record = useRecord(database, recordId);
+  const list = useMemo(() => {
+    let data = record?.items;
+    if (data && data.length > 0) {
+      if (rangeValue.length === 1 && !isNaN(rangeValue[0])) {
+        data = data.filter(item => item.value === rangeValue[0]);
+      } else if (rangeValue.length === 2) {
+        if (!isNaN(rangeValue[0])) {
+          data = data.filter(item => item.value >= rangeValue[0]);
+        }
+        if (!isNaN(rangeValue[1])) {
+          data = data.filter(item => item.value <= rangeValue[1]);
+        }
+      }
+      if (timeRange) {
+        // data = data.filter(item => item.create_time === timeRange);
+      }
+    }
+    return data;
+  }, [rangeValue, timeRange, record?.items]);
   const gotoRecordChart = () => {
     navigation.navigate('RecordChart', {recordId: record?._id.toHexString()});
   };
@@ -205,8 +226,15 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
     }
     onSelectionChange(false);
   };
-  const onValueSearch = (value: number| number[]) => {
+  const onValueSearch = (value: number | number[]) => {
     console.log('onValueSearch', value);
+    if (typeof value === 'number') {
+      if (!isNaN(value)) {
+        setRangeValue([value]);
+      }
+    } else {
+      setRangeValue(value);
+    }
   };
   const renderItem = (props: {item: RecordItemsType; index: number}) => {
     const {item, index} = props;
@@ -298,7 +326,7 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
       />
       <FlatList
         style={styles.listContainer}
-        data={record?.items}
+        data={list}
         renderItem={renderItem}
         keyExtractor={item => item._id.toHexString()}
       />

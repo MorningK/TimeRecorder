@@ -26,7 +26,10 @@ import {
 } from 'react-native-responsive-linechart';
 
 export type Props = {
-  route: RouteProp<{params: {recordId: string; values: number[]; times: number;}}, 'params'>;
+  route: RouteProp<
+    {params: {recordId: string; values: number[]; times: number}},
+    'params'
+  >;
 };
 const contentInset = {
   top: 48,

@@ -27,7 +27,7 @@ import {
 
 export type Props = {
   route: RouteProp<
-    {params: {recordId: string; values: number[]; times: number}},
+    {params: {recordId: string; values: number[]; times: number[]}},
     'params'
   >;
 };
@@ -41,7 +41,7 @@ const contentInset = {
 const RecordChart: React.FC<Props> = ({route}: Props) => {
   const recordId = route.params.recordId;
   const values = route.params.values;
-  const times = new Date(route.params.times);
+  const times = route.params.times.map(t => new Date(t));
   logger.log('recordId', recordId);
   const database = useDatabase();
   const record = useRecord(database, recordId);

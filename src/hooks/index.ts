@@ -4,6 +4,7 @@ import {Record, RecordItemsType, RecordType} from '../database/realm';
 import Realm from 'realm';
 import {useFocusEffect} from '@react-navigation/core';
 import {ObjectId} from 'bson';
+import moment from 'moment';
 
 export const useDatabase = (): DatabaseType => {
   const [database, setDatabase] = useState(null as DatabaseType);
@@ -52,8 +53,11 @@ export const useRecord = (database: DatabaseType, recordId: string) => {
 export const useRecordItems = (
   record: (RecordType & Realm.Object) | undefined,
   values: number[],
-  times: Date,
+  times: Date[],
 ): RecordItemsType[] => {
+  const formatDate = (date: Date): string => {
+    return moment(date).format('YYYYMMDD');
+  };
   return useMemo(() => {
     let data = record?.items || [];
     if (data && data.length > 0) {
@@ -67,8 +71,21 @@ export const useRecordItems = (
           data = data.filter(item => item.value <= values[1]);
         }
       }
-      if (times) {
-        // data = data.filter(item => item.create_time === timeRange);
+      if (times.length === 1) {
+        data = data.filter(
+          item => formatDate(item.create_time) === formatDate(times[0]),
+        );
+      } else if (times.length === 2) {
+        if (times[0] !== null) {
+          data = data.filter(
+            item => formatDate(item.create_time) >= formatDate(times[0]),
+          );
+        }
+        if (times[1] !== null) {
+          data = data.filter(
+            item => formatDate(item.create_time) <= formatDate(times[1]),
+          );
+        }
       }
     }
     return data;

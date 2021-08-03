@@ -59,14 +59,14 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
   const [selection, setSelection] = useState(false);
   const [selectedRecords, setSelectedRecords] = useState(new Set<string>());
   const [rangeValue, setRangeValue] = useState([] as number[]);
-  const [timeRange, setTimeRange] = useState(new Date());
+  const [timeRange, setTimeRange] = useState([] as Date[]);
   const record = useRecord(database, recordId);
   const list = useRecordItems(record, rangeValue, timeRange);
   const gotoRecordChart = () => {
     navigation.navigate('RecordChart', {
       recordId: record?._id.toHexString(),
       values: rangeValue,
-      times: timeRange.getTime(),
+      times: timeRange.map(t => t.getTime()),
     });
   };
   const onRecordSelection = (itemId: string) => {
@@ -222,6 +222,14 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
       setRangeValue(value);
     }
   };
+  const onTimeSearch = (value: Date | Date[]) => {
+    console.log('onTimeSearch', value);
+    if (value instanceof Date) {
+      setTimeRange([value]);
+    } else {
+      setTimeRange(value);
+    }
+  };
   const renderItem = (props: {item: RecordItemsType; index: number}) => {
     const {item, index} = props;
     let valueComponent = (
@@ -310,7 +318,7 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
         recordType={record?.type || -1}
         onValueChange={onValueSearch}
       />
-      <TimeSelection />
+      <TimeSelection  onValueChange={onTimeSearch}/>
       <FlatList
         style={styles.listContainer}
         data={list}

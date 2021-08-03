@@ -318,7 +318,7 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
         recordType={record?.type || -1}
         onValueChange={onValueSearch}
       />
-      <TimeSelection  onValueChange={onTimeSearch}/>
+      <TimeSelection times={timeRange} onValueChange={onTimeSearch} />
       <FlatList
         style={styles.listContainer}
         data={list}

@@ -1,16 +1,17 @@
 import React, {useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {Icon} from 'react-native-elements';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
-// import RNDates from 'react-native-dates';
-import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
+import TimePicker from './TimePicker';
+import moment from 'moment';
 
 export type TimeSelectionProps = {
   onValueChange: (range: Date | Date[]) => void;
+  times: Date[];
 };
 
 const TimeSelection: React.FC<TimeSelectionProps> = ({
   onValueChange,
+  times,
 }: TimeSelectionProps) => {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const showDatePicker = () => {
@@ -19,7 +20,10 @@ const TimeSelection: React.FC<TimeSelectionProps> = ({
   const hideDatePicker = () => {
     setDatePickerVisibility(false);
   };
-  const handleConfirm = async (date: Date) => {
+  const clearInput = () => {
+    onValueChange([]);
+  };
+  const handleConfirm = async (date: Date | Date[]) => {
     console.log('A date has been picked: ', date);
     await onValueChange(date);
     hideDatePicker();
@@ -33,10 +37,21 @@ const TimeSelection: React.FC<TimeSelectionProps> = ({
           name={'date-range'}
           onPress={showDatePicker}
         />
+        {times.length > 0 && (
+          <View style={styles.inputContainer}>
+            <Text style={styles.titleText}>
+              {times.map(t => moment(t).format('YYYY-MM-DD')).join(' ')}
+            </Text>
+            <Icon
+              containerStyle={styles.titleIcon}
+              name={'clear'}
+              onPress={clearInput}
+            />
+          </View>
+        )}
       </View>
-      <DateTimePickerModal
-        isVisible={isDatePickerVisible}
-        mode="date"
+      <TimePicker
+        visible={isDatePickerVisible}
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
       />
@@ -64,6 +79,12 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   titleIcon: {},
+  inputContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginLeft: 12,
+  },
 });
 
 export default TimeSelection;

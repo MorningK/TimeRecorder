@@ -35,7 +35,7 @@ const AddRecord: React.FC<Props> = ({}) => {
   const onPrivateChange = (value: boolean) => {
     setIsPrivate(value);
   };
-  const onSave = async () => {
+  const onSave = () => {
     let valid = true;
     if (name === '') {
       setNameError(true);
@@ -49,18 +49,27 @@ const AddRecord: React.FC<Props> = ({}) => {
       return;
     }
     setLoading(true);
-    try {
-      logger.log('save record', name, type);
-      await createObject(
-        database,
-        Record.schema.name,
-        new Record(name, type, isPrivate, description).data,
-      );
-      Toast.show('创建成功');
-      navigation.navigate('RecordList');
-    } finally {
-      setLoading(false);
-    }
+    logger.log('save record', name, type);
+    createObject(
+      database,
+      Record.schema.name,
+      new Record(name, type, isPrivate, description).data,
+    )
+      .then(rsp => {
+        console.log('create obj', rsp);
+        if (rsp !== null) {
+          Toast.show('创建成功');
+          navigation.navigate('RecordList');
+        } else {
+          Toast.show('创建失败，请稍后重试');
+        }
+        setLoading(false);
+      })
+      .catch(e => {
+        logger.error('save record error', e);
+        Toast.show('创建失败，请稍后重试');
+        setLoading(false);
+      });
   };
   const onCancel = () => {
     navigation.goBack();

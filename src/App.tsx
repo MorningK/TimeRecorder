@@ -5,44 +5,14 @@ import {StatusBar, StyleSheet} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {ThemeProvider} from 'react-native-elements';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-import {createStackNavigator} from '@react-navigation/stack';
+import {createDrawerNavigator} from '@react-navigation/drawer';
 import Index from './screens/Index';
-import AddRecord from './screens/AddRecord';
-import RecordList from './screens/RecordList';
-import RecordItemList from './screens/RecordItemList';
 import {useColorScheme} from 'react-native';
 import {EmptyObject} from './common/constant';
-import RecordChart from './screens/RecordChart';
+import Setting from './screens/Setting';
 export type Props = EmptyObject;
 
-const Stack = createStackNavigator();
-const screens = [
-  {
-    name: 'Index',
-    component: Index,
-    title: '首页',
-  },
-  {
-    name: 'AddRecord',
-    component: AddRecord,
-    title: '新增记录项',
-  },
-  {
-    name: 'RecordList',
-    component: RecordList,
-    title: '记录项列表',
-  },
-  {
-    name: 'RecordItemList',
-    component: RecordItemList,
-    title: '记录列表',
-  },
-  {
-    name: 'RecordChart',
-    component: RecordChart,
-    title: '记录图表',
-  },
-];
+const Drawer = createDrawerNavigator();
 
 const App: React.FC<Props> = ({}) => {
   const colorScheme = useColorScheme();
@@ -56,16 +26,18 @@ const App: React.FC<Props> = ({}) => {
           backgroundColor="transparent"
         />
         <NavigationContainer>
-          <Stack.Navigator initialRouteName="RecordList">
-            {screens.map(item => (
-              <Stack.Screen
-                key={item.name}
-                name={item.name}
-                component={item.component}
-                options={{title: item.title}}
-              />
-            ))}
-          </Stack.Navigator>
+          <Drawer.Navigator initialRouteName={'Index'} drawerType={'front'}>
+            <Drawer.Screen
+              name={'Index'}
+              component={Index}
+              options={{title: '首页'}}
+            />
+            <Drawer.Screen
+              name={'Setting'}
+              component={Setting}
+              options={{title: '设置'}}
+            />
+          </Drawer.Navigator>
         </NavigationContainer>
       </SafeAreaProvider>
     </ThemeProvider>

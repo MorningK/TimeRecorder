@@ -18,14 +18,22 @@ const AddRecord: React.FC<Props> = ({}) => {
   const [typeError, setTypeError] = useState(false);
   const [type, setType] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [description, setDescription] = useState('');
   const database = useDatabase();
   const onNameChange = (value: string) => {
     setName(value);
     setNameError(false);
   };
+  const onDescriptionChange = (value: string) => {
+    setDescription(value);
+  };
   const onTypeChange = (value: number) => {
     setType(value);
     setTypeError(false);
+  };
+  const onPrivateChange = (value: boolean) => {
+    setIsPrivate(value);
   };
   const onSave = async () => {
     let valid = true;
@@ -46,7 +54,7 @@ const AddRecord: React.FC<Props> = ({}) => {
       await createObject(
         database,
         Record.schema.name,
-        new Record(name, type).data,
+        new Record(name, type, isPrivate, description).data,
       );
       Toast.show('创建成功');
       navigation.navigate('RecordList');
@@ -63,25 +71,56 @@ const AddRecord: React.FC<Props> = ({}) => {
         <Input
           label="记录名称"
           labelStyle={styles.inputLabel}
-          placeholder="请输入记录名称"
+          placeholder="名称必填"
           errorMessage={nameError ? '请输入记录名称' : undefined}
           errorStyle={styles.errorMsg}
           onChangeText={onNameChange}
         />
+        <Input
+          label="记录描述"
+          labelStyle={styles.inputLabel}
+          placeholder="描述可选填"
+          multiline={true}
+          errorStyle={styles.errorMsg}
+          onChangeText={onDescriptionChange}
+        />
+        <View style={styles.recordTypes}>
+          <Text style={[styles.inputLabel, styles.recordLabel]}>设为私密</Text>
+          <View style={styles.privateOptionContainer}>
+            <CheckBox
+              containerStyle={styles.checkboxContainer}
+              checkedIcon={<Icon name="radio-button-checked" />}
+              uncheckedIcon={<Icon name="radio-button-unchecked" />}
+              title={'公开'}
+              checked={!isPrivate}
+              onPress={() => onPrivateChange(false)}
+            />
+            <CheckBox
+              containerStyle={styles.checkboxContainer}
+              checkedIcon={<Icon name="radio-button-checked" />}
+              uncheckedIcon={<Icon name="radio-button-unchecked" />}
+              title={'私密'}
+              checked={isPrivate}
+              onPress={() => onPrivateChange(true)}
+            />
+          </View>
+        </View>
         <View style={styles.recordTypes}>
           <Text style={[styles.inputLabel, styles.recordLabel]}>记录类型</Text>
-          {RecordeTypes.map(recordType => (
-            <View key={recordType.value}>
-              <CheckBox
-                containerStyle={styles.checkboxContainer}
-                checkedIcon={<Icon name="radio-button-checked" />}
-                uncheckedIcon={<Icon name="radio-button-unchecked" />}
-                title={recordType.name}
-                checked={type === recordType.value}
-                onPress={() => onTypeChange(recordType.value)}
-              />
-            </View>
-          ))}
+          <View style={styles.bgWhite}>
+            {RecordeTypes.map(recordType => (
+              <View key={recordType.value}>
+                <CheckBox
+                  containerStyle={styles.checkboxContainer}
+                  checkedIcon={<Icon name="radio-button-checked" />}
+                  uncheckedIcon={<Icon name="radio-button-unchecked" />}
+                  title={recordType.name}
+                  checked={type === recordType.value}
+                  onPress={() => onTypeChange(recordType.value)}
+                />
+              </View>
+            ))}
+          </View>
           {typeError && (
             <Text style={[styles.errorMsg, styles.typeErrorMsg]}>
               请选择记录类型
@@ -109,6 +148,7 @@ const styles = StyleSheet.create({
   recordTypes: {
     width: '100%',
     flexDirection: 'column',
+    marginBottom: 12,
   },
   inputLabel: {
     fontSize: 16,
@@ -120,7 +160,12 @@ const styles = StyleSheet.create({
   },
   checkboxContainer: {
     paddingHorizontal: 0,
-    marginHorizontal: 0,
+    margin: 0,
+    borderWidth: 0,
+    backgroundColor: 'white',
+  },
+  bgWhite: {
+    backgroundColor: 'white',
   },
   operations: {
     width: '100%',
@@ -135,6 +180,12 @@ const styles = StyleSheet.create({
   typeErrorMsg: {
     margin: 5,
     paddingHorizontal: 10,
+  },
+  privateOptionContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
   },
 });
 

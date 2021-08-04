@@ -1,5 +1,5 @@
 import Realm from 'realm';
-import {databaseStoragePath, Schema, SchemaVersion} from './realm';
+import {databaseStoragePath, Record, RecordType, Schema, SchemaVersion} from './realm';
 import logger from '../log';
 
 export const openDatabase = async () => {
@@ -8,7 +8,15 @@ export const openDatabase = async () => {
     path: databaseStoragePath,
     schema: Schema,
     schemaVersion: SchemaVersion,
-    migration: (oldRealm, newRealm) => {},
+    migration: (oldRealm, newRealm) => {
+      if (oldRealm.schemaVersion < 3) {
+        const newObjects = newRealm.objects<RecordType>(Record.schema.name);
+        for (const objKey in newObjects) {
+          const newObj = newObjects[objKey];
+          newObj.private = false;
+        }
+      }
+    },
   });
 };
 

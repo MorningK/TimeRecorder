@@ -192,6 +192,30 @@ const RecordList: React.FC<Props> = ({}) => {
           });
       });
     };
+    const onPrivateChange = () => {
+      console.log('private change item', record);
+      return new Promise<boolean>((resolve, reject) => {
+        updateObject<RecordType>(
+          database,
+          Record.schema.name,
+          record._id,
+          origin => {
+            origin.private = !origin.private;
+            return origin;
+          },
+        )
+          .then(success => {
+            Toast.show(success ? '修改成功' : '修改失败');
+            success && getRecords();
+            resolve(success !== null);
+          })
+          .catch(e => {
+            console.error('delete error', e);
+            Toast.show('修改失败');
+            reject(e);
+          });
+      });
+    };
     let operationComponent = <EmptyElement />;
     if (record.type === RATING_RECORD_TYPE.value) {
       operationComponent = (
@@ -241,6 +265,7 @@ const RecordList: React.FC<Props> = ({}) => {
           renderProps={props}
           OperationComponent={operationComponent}
           onDelete={onDelete}
+          onPrivateChange={onPrivateChange}
         />
       </View>
     );

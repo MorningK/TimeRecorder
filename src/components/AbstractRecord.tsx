@@ -1,4 +1,4 @@
-import React, {createRef, useEffect, useRef, useState} from 'react';
+import React, {createRef, useEffect, useMemo, useRef, useState} from 'react';
 import {
   ListRenderItemInfo,
   StyleSheet,
@@ -23,19 +23,35 @@ export type Props = {
   renderProps: ListRenderItemInfo<RecordType>;
   OperationComponent: React.FC | React.Component | Element;
   onDelete: () => Promise<boolean>;
+  onPrivateChange: () => Promise<boolean>;
 };
 
 const AbstractRecord: React.FC<Props> = ({
   renderProps,
   OperationComponent,
   onDelete,
+  onPrivateChange,
 }: Props) => {
   const navigation = useNavigation();
   const {item, index} = renderProps;
   const [showOperation, setShowOperation] = useState(false);
   const [popover, setPopover] = useState(false);
-  const tooltipRef = createRef();
+  const [forceClose, setForceClose] = useState(0);
+  const tooltipRef = useRef();
   const windowSize = useWindowDimensions();
+  const displayName = useMemo(() => {
+    if (item.private && item.name.length > 1) {
+      const name = item.name.trim();
+      return name[0] + '***' + name[name.length - 1];
+    } else {
+      return item.name;
+    }
+  }, [item]);
+  useEffect(() => {
+    if (forceClose > 0 && tooltipRef.current !== null) {
+      tooltipRef.current?.toggleTooltip();
+    }
+  }, [forceClose, tooltipRef]);
   const gotoRecordItemList = () => {
     navigation.navigate('RecordItemList', {recordId: item._id.toHexString()});
   };
@@ -43,7 +59,12 @@ const AbstractRecord: React.FC<Props> = ({
     console.log('onChoose idx', idx);
     if (idx === 0) {
       onDelete().then(success => {
-        success && tooltipRef.current?.toggleTooltip();
+        success && setForceClose(state => state + 1);
+      });
+    } else if (idx === 1) {
+      onPrivateChange().then(success => {
+        console.log('is onPrivateChange success', success, tooltipRef.current);
+        success && setForceClose(state => state + 1);
       });
     } else {
       tooltipRef.current?.toggleTooltip();
@@ -52,10 +73,7 @@ const AbstractRecord: React.FC<Props> = ({
   return (
     <ListItem
       // onLayout={onLayout}
-      containerStyle={[
-        styles.container,
-        {backgroundColor: popover ? '#aaaaaa' : '#ffffff'},
-      ]}
+      containerStyle={[styles.container, popover && styles.popContainer]}
       bottomDivider>
       <View style={styles.displayContainer}>
         <View style={styles.indexContainer}>
@@ -65,11 +83,12 @@ const AbstractRecord: React.FC<Props> = ({
           <Tooltip
             ref={tooltipRef}
             containerStyle={styles.tooltip}
-            backgroundColor={'#222222'}
-            height={50}
-            width={120}
+            backgroundColor={'white'}
+            height={50 * 3 + 10}
+            width={25 * 4}
             toggleAction={'onLongPress' as 'onPress'}
             withOverlay={false}
+            withPointer={false}
             skipAndroidStatusBar={false}
             onOpen={() => setPopover(true)}
             onClose={() => setPopover(false)}
@@ -77,12 +96,18 @@ const AbstractRecord: React.FC<Props> = ({
               <ButtonGroup
                 onPress={onChoose}
                 containerStyle={styles.bgContainer}
+                buttonContainerStyle={styles.btnContainer}
                 buttonStyle={styles.bgBtn}
                 textStyle={styles.bgText}
-                buttons={['删除', '取消']}
+                vertical={true}
+                buttons={[
+                  '删除',
+                  item.private ? '设为公开' : '设为私密',
+                  '取消',
+                ]}
               />
             }>
-            <Text style={styles.recordNameText}>{item.name}</Text>
+            <Text style={styles.recordNameText}>{displayName}</Text>
           </Tooltip>
         </View>
         <View style={styles.operationIconContainer}>
@@ -120,14 +145,32 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignContent: 'flex-start',
+    backgroundColor: '#ffffff',
+  },
+  popContainer: {
+    backgroundColor: '#dddddd'
   },
   tooltip: {
     flex: 7,
     padding: 0,
+    borderWidth: 1,
+    borderColor: '#dddddd',
   },
-  bgContainer: {height: 30, borderWidth: 0},
-  bgBtn: {backgroundColor: '#222222'},
-  bgText: {color: 'white'},
+  bgContainer: {
+    height: 50 * 3,
+    borderWidth: 0,
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+  },
+  bgBtn: {},
+  bgText: {
+    color: 'black',
+  },
+  btnContainer: {
+    paddingVertical: 6,
+    backgroundColor: 'white',
+    borderBottomWidth: 0,
+  },
   displayContainer: {
     width: '100%',
     flexDirection: 'row',

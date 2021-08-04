@@ -8,6 +8,8 @@ export type RecordType = {
   create_time: Date;
   name: string;
   type: number;
+  private: boolean;
+  description?: string;
   items?: Array<RecordItemsType>;
 };
 
@@ -24,16 +26,28 @@ export class Record {
       },
       name: 'string',
       type: 'int',
+      private: {
+        type: 'bool',
+        default: false,
+      },
+      description: 'string',
       items: 'RecordItems[]',
     },
   };
   public data: RecordType;
-  constructor(name: string, type: number) {
+  constructor(
+    name: string,
+    type: number,
+    isPrivate?: boolean,
+    description?: string,
+  ) {
     this.data = {
       _id: new ObjectId(),
       create_time: new Date(),
       name: name,
       type: type,
+      private: isPrivate === true,
+      description: description,
       items: [],
     };
   }
@@ -74,7 +88,10 @@ export class RecordItems {
 
 export const Schema = [Record, RecordItems];
 
-export const SchemaVersion = 2;
+/**
+ * SchemaVersion 3: add private and description properties to Record Schema
+ */
+export const SchemaVersion = 3;
 
 export const databaseStoragePath = Realm.defaultPath;
 console.log('Realm.defaultPath is', Realm.defaultPath);

@@ -314,11 +314,15 @@ const RecordItemList: React.FC<Props> = ({route}: Props) => {
         record={record}
         onPressChart={gotoRecordChart}
       />
-      <ValueRanger
-        recordType={record?.type || -1}
-        onValueChange={onValueSearch}
-      />
-      <TimeSelection times={timeRange} onValueChange={onTimeSearch} />
+      {record?.items && record?.items.length > 0 && (
+        <>
+          <ValueRanger
+            recordType={record?.type}
+            onValueChange={onValueSearch}
+          />
+          <TimeSelection times={timeRange} onValueChange={onTimeSearch} />
+        </>
+      )}
       <FlatList
         style={styles.listContainer}
         data={list}

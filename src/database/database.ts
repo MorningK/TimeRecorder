@@ -1,8 +1,14 @@
 import Realm from 'realm';
-import {databaseStoragePath, Record, RecordType, Schema, SchemaVersion} from './realm';
+import {
+  databaseStoragePath,
+  Record,
+  RecordType,
+  Schema,
+  SchemaVersion,
+} from './realm';
 import logger from '../log';
 
-export const openDatabase = async () => {
+export const openDatabase = (): ProgressPromise => {
   logger.log('open database', databaseStoragePath, Schema);
   return Realm.open({
     path: databaseStoragePath,
@@ -20,9 +26,9 @@ export const openDatabase = async () => {
   });
 };
 
-export const closeDatabase = (db: DatabaseType) => {
+export const closeDatabase = (db: DatabaseType): void => {
   logger.log('close database', db);
-  db && db.close();
+  db && !db.isClosed && db.close();
 };
 
 export const queryObject = <T>(
@@ -31,7 +37,7 @@ export const queryObject = <T>(
   filter?: string,
   order?: string,
   reverse?: boolean,
-) => {
+): Realm.Results<T> | [] => {
   if (database) {
     let list = database.objects<T>(objectName);
     if (filter) {
@@ -50,7 +56,7 @@ export const createObject = async <T>(
   database: DatabaseType,
   objectName: string,
   data: T,
-) => {
+): Promise<(T & Realm.Object) | null> => {
   if (database) {
     return new Promise<T & Realm.Object>((resolve, reject) => {
       database.write(() => {
@@ -70,7 +76,7 @@ export const updateObject = async <T>(
   objectName: string,
   id: ObjectId | string | number,
   updater: (origin: T & Realm.Object) => T & Realm.Object,
-) => {
+): Promise<(T & Realm.Object) | null> => {
   if (database) {
     return new Promise<T & Realm.Object>((resolve, reject) => {
       database.write(() => {
@@ -90,7 +96,7 @@ export const deleteObject = async (
   database: DatabaseType,
   objectName: string,
   id: ObjectId | string | number,
-) => {
+): Promise<boolean> => {
   if (database) {
     return new Promise<boolean>((resolve, reject) => {
       database.write(() => {

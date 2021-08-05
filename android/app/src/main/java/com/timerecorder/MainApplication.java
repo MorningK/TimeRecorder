@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Arrays;
 import com.timerecorder.generated.BasePackageList;
+import com.timerecorder.packages.FileSelectorPackage;
 import org.unimodules.adapters.react.ModuleRegistryAdapter;
 import org.unimodules.adapters.react.ReactModuleRegistryProvider;
 import org.unimodules.core.interfaces.SingletonModule;
@@ -32,6 +33,7 @@ public class MainApplication extends Application implements ReactApplication {
                   new ModuleRegistryAdapter(mModuleRegistryProvider)
           );
           packages.addAll(unimodules);
+          packages.add(new FileSelectorPackage());
           return packages;
         }
 

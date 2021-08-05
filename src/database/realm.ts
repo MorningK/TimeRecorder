@@ -1,6 +1,5 @@
 import Realm from 'realm';
 import {ObjectId} from 'bson';
-import RNFS from 'react-native-fs';
 import {Platform} from 'react-native';
 
 export type RecordType = {
